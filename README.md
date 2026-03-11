@@ -1,7 +1,7 @@
 ## 📚 **DOCUMENTAÇÃO ATUALIZADA - SISTEMA DE ORÇAMENTOS**
 
 
-# 📑 **SISTEMA DE ORÇAMENTOS ITA FROTAS**
+# 📑 **SISTEMA DE ORÇAMENTOS**
 ### *Programa para criar orçamentos para oficinas com API REST integrada*
 
 ---
