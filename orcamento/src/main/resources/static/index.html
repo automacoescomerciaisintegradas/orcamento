@@ -1,0 +1,2520 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Orçamento Elegante - ITA Frotas</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
+    
+    <style>
+        /* ----------------------------------- */
+        /* VARIÁVEIS E RESET - TEMA FEMININO */
+        /* ----------------------------------- */
+        :root {
+            --primary-blue: #2c3e50;
+            --secondary-blue: #3498db;
+            --light-blue: #ecf0f1;
+            --accent-yellow: #f1c40f;
+            --dark-yellow: #f39c12;
+            --black: #2c3e50;
+            --white: #ffffff;
+            --success-color: #27ae60;
+            --warning-color: #e67e22;
+            --error-color: #e74c3c;
+            --border-radius: 16px;
+            --box-shadow: 0 10px 30px rgba(44, 62, 80, 0.15);
+            --transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.1);
+            --glass-bg: rgba(255, 255, 255, 0.92);
+            --glass-border: rgba(255, 255, 255, 0.3);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', 'Poppins', system-ui, -apple-system, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4e8f0 100%);
+            color: var(--black);
+            line-height: 1.6;
+            padding-top: 160px;
+            min-height: 100vh;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* Flores de fundo */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image: 
+                url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M50 20c-8 0-15 7-15 15s7 15 15 15 15-7 15-15-7-15-15-15zm0 25c-5.5 0-10-4.5-10-10s4.5-10 10-10 10 4.5 10 10-4.5 10-10 10z' fill='%233498db' fill-opacity='0.05'/%3E%3C/svg%3E"),
+                url("data:image/svg+xml,%3Csvg width='80' height='80' viewBox='0 0 80 80' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M40 10c-6 0-10 4-10 10s4 10 10 10 10-4 10-10-4-10-10-10zm0 16c-3.3 0-6-2.7-6-6s2.7-6 6-6 6 2.7 6 6-2.7 6-6 6z' fill='%23f1c40f' fill-opacity='0.04'/%3E%3C/svg%3E");
+            background-size: 200px, 150px;
+            background-position: 10% 20%, 90% 80%;
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        /* Decoração floral adicional */
+        .floral-decoration {
+            position: fixed;
+            z-index: -1;
+            opacity: 0.1;
+        }
+
+        .floral-1 {
+            top: 10%;
+            left: 5%;
+            width: 200px;
+            height: 200px;
+            background: radial-gradient(circle, var(--secondary-blue) 0%, transparent 70%);
+            border-radius: 50%;
+        }
+
+        .floral-2 {
+            bottom: 15%;
+            right: 8%;
+            width: 150px;
+            height: 150px;
+            background: radial-gradient(circle, var(--accent-yellow) 0%, transparent 70%);
+            border-radius: 50%;
+        }
+
+        .container {
+            max-width: 1300px;
+            margin: 0 auto;
+            padding: 0 25px;
+        }
+
+        /* ----------------------------------- */
+        /* ANIMAÇÕES */
+        /* ----------------------------------- */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes slideInRight {
+            from { transform: translateX(40px); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        /* ----------------------------------- */
+        /* HEADER ELEGANTE COM DATA/HORA */
+        /* ----------------------------------- */
+        header {
+            background: linear-gradient(135deg, var(--primary-blue) 0%, var(--secondary-blue) 100%);
+            color: var(--white);
+            padding: 0;
+            box-shadow: 0 15px 40px rgba(44, 62, 80, 0.2);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            height: 160px;
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 1000;
+            overflow: hidden;
+            transition: var(--transition);
+        }
+
+        header.compact {
+            height: 120px;
+            box-shadow: 0 10px 30px rgba(44, 62, 80, 0.15);
+        }
+
+        header .header-top {
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 30px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+        }
+
+        .datetime-container {
+            text-align: right;
+            color: var(--white);
+        }
+
+        .greeting {
+            font-size: 1.4rem;
+            font-weight: 600;
+            margin-bottom: 5px;
+            color: var(--accent-yellow);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .current-datetime {
+            font-size: 1.1rem;
+            font-weight: 500;
+            opacity: 0.9;
+        }
+
+        header .container {
+            position: relative;
+            z-index: 1;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            padding: 20px;
+        }
+
+        header h1 {
+            color: var(--white);
+            font-size: 2.8rem;
+            margin: 10px 0 5px;
+            font-weight: 700;
+            position: relative;
+            padding: 0 20px;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        header h1::before {
+            content: "🌸";
+            font-size: 2.2rem;
+            animation: float 3s infinite;
+        }
+
+        .subtitle {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 1.1rem;
+            font-weight: 400;
+            margin-top: 5px;
+            transition: var(--transition);
+        }
+
+        /* ----------------------------------- */
+        /* LAYOUT PRINCIPAL ELEGANTE */
+        /* ----------------------------------- */
+        .app-container {
+            display: flex;
+            gap: 35px;
+            flex-wrap: wrap;
+            animation: fadeIn 0.8s ease-out;
+            margin-top: 30px;
+        }
+
+        .form-section, .preview-section {
+            flex: 1;
+            min-width: 450px;
+            background: var(--glass-bg);
+            backdrop-filter: blur(15px);
+            border-radius: var(--border-radius);
+            padding: 35px;
+            box-shadow: var(--box-shadow);
+            border: 1px solid var(--glass-border);
+            position: relative;
+            overflow: hidden;
+            transition: var(--transition);
+        }
+
+        .form-section::before, .preview-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 6px;
+            background: linear-gradient(90deg, var(--secondary-blue), var(--accent-yellow));
+            border-radius: var(--border-radius) var(--border-radius) 0 0;
+        }
+
+        .form-section:hover, .preview-section:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 50px rgba(44, 62, 80, 0.2);
+        }
+
+        .section-card {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.98), rgba(236, 240, 241, 0.98));
+            border-radius: var(--border-radius);
+            padding: 35px;
+            margin-bottom: 35px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.06);
+            transition: var(--transition);
+            border: 1px solid rgba(52, 152, 219, 0.15);
+            position: relative;
+            overflow: hidden;
+            animation: fadeIn 0.6s ease-out backwards;
+        }
+
+        .section-card:nth-child(1) { animation-delay: 0.1s; }
+        .section-card:nth-child(2) { animation-delay: 0.2s; }
+        .section-card:nth-child(3) { animation-delay: 0.3s; }
+        .section-card:nth-child(4) { animation-delay: 0.4s; }
+        .section-card:nth-child(5) { animation-delay: 0.5s; }
+
+        .section-card::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 5px;
+            height: 100%;
+            background: linear-gradient(to bottom, var(--secondary-blue), var(--accent-yellow));
+            border-radius: 5px 0 0 5px;
+        }
+
+        .section-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(52, 152, 219, 0.15);
+        }
+
+        h2, .section-card h3 {
+            color: var(--primary-blue);
+            margin-bottom: 1.8rem;
+            padding-bottom: 1.2rem;
+            border-bottom: 2px solid rgba(52, 152, 219, 0.2);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            font-weight: 700;
+            position: relative;
+        }
+
+        h2 i, .section-card h3 i {
+            color: var(--secondary-blue);
+            background: linear-gradient(135deg, rgba(236, 240, 241, 0.9), rgba(255, 255, 255, 0.9));
+            padding: 12px;
+            border-radius: 14px;
+            box-shadow: 0 6px 20px rgba(52, 152, 219, 0.15);
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* ----------------------------------- */
+        /* FORMULÁRIO ELEGANTE */
+        /* ----------------------------------- */
+        .form-group {
+            margin-bottom: 1.8rem;
+            position: relative;
+        }
+
+        label {
+            display: flex;
+            align-items: center;
+            margin-bottom: 0.8rem;
+            font-weight: 600;
+            color: var(--primary-blue);
+            font-size: 1rem;
+            gap: 10px;
+        }
+
+        label i {
+            color: var(--secondary-blue);
+            font-size: 1.1em;
+        }
+
+        input, textarea, select {
+            width: 100%;
+            padding: 18px 22px;
+            border: 2px solid rgba(52, 152, 219, 0.2);
+            border-radius: var(--border-radius);
+            font-size: 1.05rem;
+            transition: var(--transition);
+            background: rgba(255, 255, 255, 0.95);
+            font-weight: 500;
+            color: var(--black);
+            box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.03);
+        }
+
+        input:focus, textarea:focus, select:focus {
+            border-color: var(--secondary-blue);
+            outline: none;
+            box-shadow: 0 0 0 4px rgba(52, 152, 219, 0.15);
+            background: var(--white);
+            transform: translateY(-3px);
+        }
+
+        .form-row {
+            display: flex;
+            gap: 25px;
+        }
+
+        .form-row .form-group {
+            flex: 1;
+        }
+
+        /* ----------------------------------- */
+        /* BOTÕES ELEGANTES */
+        /* ----------------------------------- */
+        .btn {
+            padding: 18px 32px;
+            border: none;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            font-size: 1.1rem;
+            font-weight: 600;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+            position: relative;
+            overflow: hidden;
+            letter-spacing: 0.5px;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.2);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+
+        .btn:hover::before {
+            width: 400px;
+            height: 400px;
+        }
+
+        .btn:hover {
+            transform: translateY(-5px) scale(1.02);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+        }
+
+        .btn:active {
+            transform: translateY(-2px) scale(0.98);
+        }
+
+        .btn-primary { 
+            background: linear-gradient(135deg, var(--secondary-blue), #2980b9); 
+            color: var(--white); 
+        }
+        .btn-primary:hover { 
+            background: linear-gradient(135deg, #2980b9, var(--secondary-blue)); 
+        }
+
+        .btn-success { 
+            background: linear-gradient(135deg, var(--success-color), #219653); 
+            color: var(--white); 
+        }
+        .btn-success:hover { 
+            background: linear-gradient(135deg, #219653, var(--success-color)); 
+        }
+
+        .btn-danger { 
+            background: linear-gradient(135deg, var(--error-color), #c0392b); 
+            color: var(--white); 
+        }
+        .btn-danger:hover { 
+            background: linear-gradient(135deg, #c0392b, var(--error-color)); 
+        }
+
+        .btn-warning { 
+            background: linear-gradient(135deg, var(--accent-yellow), var(--dark-yellow)); 
+            color: var(--black); 
+        }
+        .btn-warning:hover { 
+            background: linear-gradient(135deg, var(--dark-yellow), var(--accent-yellow)); 
+        }
+
+        .action-buttons {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 20px;
+            margin-top: 40px;
+        }
+
+        .quick-actions {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 35px;
+            flex-wrap: wrap;
+        }
+
+        .quick-action-btn {
+            background: linear-gradient(135deg, rgba(236, 240, 241, 0.9), rgba(255, 255, 255, 0.9));
+            border: 2px solid rgba(52, 152, 219, 0.2);
+            border-radius: var(--border-radius);
+            padding: 15px 25px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: var(--primary-blue);
+            font-weight: 600;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .quick-action-btn::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+            transition: left 0.7s;
+        }
+
+        .quick-action-btn:hover::after {
+            left: 100%;
+        }
+
+        .quick-action-btn:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 25px rgba(52, 152, 219, 0.15);
+            border-color: var(--secondary-blue);
+        }
+
+        /* ----------------------------------- */
+        /* TABELAS ELEGANTES */
+        /* ----------------------------------- */
+        .items-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            margin: 30px 0;
+            border-radius: var(--border-radius);
+            overflow: hidden;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.06);
+            border: 1px solid rgba(236, 240, 241, 0.8);
+            animation: slideInRight 0.6s ease-out;
+        }
+
+        .items-table th, .items-table td {
+            padding: 20px 25px;
+            text-align: left;
+            border-bottom: 1px solid rgba(236, 240, 241, 0.8);
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .items-table th {
+            background: linear-gradient(135deg, var(--primary-blue), var(--secondary-blue));
+            color: var(--white);
+            font-weight: 600;
+            position: sticky;
+            top: 0;
+        }
+
+        .items-table tbody tr {
+            transition: all 0.3s ease;
+        }
+
+        .items-table tbody tr:hover {
+            background: linear-gradient(90deg, rgba(236, 240, 241, 0.5), rgba(255, 255, 255, 0.5));
+            transform: translateX(5px);
+            box-shadow: 0 5px 20px rgba(52, 152, 219, 0.1);
+        }
+
+        /* ----------------------------------- */
+        /* RESUMO ELEGANTE */
+        /* ----------------------------------- */
+        .summary-card {
+            background: linear-gradient(135deg, var(--primary-blue), #34495e);
+            color: var(--white);
+            border-radius: var(--border-radius);
+            padding: 30px;
+            margin-top: 30px;
+            box-shadow: 0 15px 40px rgba(44, 62, 80, 0.25);
+            position: relative;
+            overflow: hidden;
+            animation: pulse 2s infinite;
+            animation-play-state: paused;
+        }
+
+        .summary-card.has-value {
+            animation-play-state: running;
+        }
+        
+        .summary-card::before {
+            content: "";
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, 
+                transparent 30%, 
+                rgba(255, 255, 255, 0.1) 50%, 
+                transparent 70%);
+        }
+
+        .summary-card h3 {
+            margin: 0 0 25px 0;
+            color: var(--white);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+            padding-bottom: 15px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .summary-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+            font-size: 1.2rem;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .summary-item.sinistro {
+            color: var(--accent-yellow);
+            font-weight: 600;
+        }
+        
+        .summary-total {
+            font-weight: 700;
+            font-size: 1.6rem;
+            border-top: 2px solid rgba(255, 255, 255, 0.3);
+            padding-top: 20px;
+            margin-top: 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* ----------------------------------- */
+        /* PRÉVIA ELEGANTE */
+        /* ----------------------------------- */
+        .preview-section {
+            animation: slideInRight 0.8s ease-out 0.2s backwards;
+        }
+
+        .preview-content {
+            background: var(--white);
+            padding: 35px;
+            border-radius: var(--border-radius);
+            min-height: 650px;
+            max-height: 850px;
+            overflow-y: auto;
+            scroll-behavior: smooth;
+            box-shadow: inset 0 4px 30px rgba(0, 0, 0, 0.05);
+            position: relative;
+        }
+
+        .preview-content::-webkit-scrollbar {
+            width: 10px;
+        }
+
+        .preview-content::-webkit-scrollbar-track {
+            background: rgba(236, 240, 241, 0.5);
+            border-radius: 5px;
+        }
+
+        .preview-content::-webkit-scrollbar-thumb {
+            background: linear-gradient(to bottom, var(--secondary-blue), var(--accent-yellow));
+            border-radius: 5px;
+        }
+
+        .preview-header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding-bottom: 25px;
+            border-bottom: 4px solid var(--secondary-blue);
+            background: linear-gradient(135deg, rgba(236, 240, 241, 0.5), rgba(255, 255, 255, 0.5));
+            padding: 30px;
+            border-radius: 18px;
+        }
+
+        .company-info, .client-info {
+            margin-bottom: 30px;
+            padding: 25px;
+            border-left: 6px solid var(--accent-yellow);
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.9), rgba(236, 240, 241, 0.9));
+            border-radius: 0 var(--border-radius) var(--border-radius) 0;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.05);
+            transition: transform 0.3s ease;
+        }
+
+        .company-info:hover, .client-info:hover {
+            transform: translateX(5px);
+        }
+
+        .preview-dates {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 30px;
+            font-size: 1.1rem;
+            background: linear-gradient(135deg, rgba(236, 240, 241, 0.9), rgba(255, 255, 255, 0.9));
+            padding: 20px 30px;
+            border-radius: var(--border-radius);
+            border: 2px solid var(--secondary-blue);
+        }
+
+        .preview-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 30px 0;
+            border-radius: var(--border-radius);
+            overflow: hidden;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.06);
+        }
+
+        .preview-table th, .preview-table td {
+            padding: 18px;
+            border: 1px solid rgba(236, 240, 241, 0.8);
+            font-size: 1rem;
+            transition: background-color 0.2s ease;
+        }
+
+        .preview-table th {
+            background: linear-gradient(135deg, var(--primary-blue), var(--secondary-blue));
+            color: var(--white);
+            text-align: center;
+            font-weight: 600;
+        }
+
+        .preview-table tbody tr:hover {
+            background-color: rgba(236, 240, 241, 0.5);
+        }
+
+        .total-row {
+            font-weight: 700;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.9), rgba(236, 240, 241, 0.9));
+        }
+        
+        .total-sinistro-row {
+            font-weight: 700;
+            background: linear-gradient(135deg, rgba(241, 196, 15, 0.2), rgba(243, 156, 18, 0.2));
+            color: var(--primary-blue);
+        }
+
+        .observations {
+            margin-top: 35px;
+            padding: 25px;
+            border-top: 3px dashed rgba(52, 152, 219, 0.3);
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(236, 240, 241, 0.95));
+            border-radius: var(--border-radius);
+            animation: fadeIn 0.6s ease-out;
+        }
+
+        .empty-message {
+            text-align: center;
+            color: #7f8c8d;
+            padding: 100px 0;
+            font-style: italic;
+            font-size: 1.3rem;
+            animation: pulse 3s infinite;
+        }
+        
+        .empty-message i {
+            font-size: 5rem;
+            display: block;
+            margin-bottom: 25px;
+            color: #bdc3c7;
+            opacity: 0.6;
+        }
+
+        /* ----------------------------------- */
+        /* UPLOAD ELEGANTE */
+        /* ----------------------------------- */
+        .upload-area {
+            border: 3px dashed rgba(52, 152, 219, 0.4);
+            border-radius: var(--border-radius);
+            padding: 60px;
+            text-align: center;
+            margin-bottom: 30px;
+            cursor: pointer;
+            transition: var(--transition);
+            position: relative;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.9), rgba(236, 240, 241, 0.9));
+            overflow: hidden;
+        }
+
+        .upload-area:hover, .upload-area.dragover {
+            border-color: var(--secondary-blue);
+            background: linear-gradient(135deg, rgba(236, 240, 241, 0.95), rgba(255, 255, 255, 0.95));
+            transform: scale(1.02);
+        }
+
+        .upload-area i {
+            font-size: 64px;
+            color: var(--secondary-blue);
+            margin-bottom: 20px;
+            display: block;
+            transition: transform 0.3s ease;
+        }
+
+        .upload-area:hover i {
+            transform: translateY(-8px) scale(1.1);
+        }
+
+        .photos-preview {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            gap: 25px;
+            margin-top: 25px;
+        }
+
+        .photo-item {
+            position: relative;
+            border-radius: var(--border-radius);
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(44, 62, 80, 0.2);
+            width: 100%;
+            padding-top: 100%;
+            border: 5px solid var(--white);
+            transition: var(--transition);
+            animation: fadeIn 0.6s ease-out backwards;
+        }
+        
+        .photo-item:hover {
+            transform: scale(1.08) rotate(2deg);
+            box-shadow: 0 20px 40px rgba(44, 62, 80, 0.3);
+            z-index: 10;
+        }
+        
+        .photo-item img {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+            transition: transform 0.3s ease;
+        }
+
+        .photo-remove {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            background: linear-gradient(135deg, rgba(231, 76, 60, 0.95), rgba(192, 57, 43, 0.95));
+            color: var(--white);
+            border: none;
+            border-radius: 50%;
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 18px;
+            padding: 0;
+            line-height: 1;
+            transition: all 0.3s ease;
+            z-index: 11;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
+            opacity: 0;
+            transform: scale(0.8);
+        }
+
+        .photo-item:hover .photo-remove {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        .photo-remove:hover {
+            background: linear-gradient(135deg, var(--error-color), #c0392b);
+            transform: scale(1.2) !important;
+        }
+
+        /* ----------------------------------- */
+        /* NOTIFICAÇÕES ELEGANTES */
+        /* ----------------------------------- */
+        .notification {
+            position: fixed;
+            top: 180px;
+            right: 35px;
+            padding: 22px 28px;
+            border-radius: var(--border-radius);
+            color: var(--white);
+            font-weight: 600;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
+            z-index: 2000;
+            transform: translateX(400px);
+            transition: transform 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            max-width: 450px;
+            border-left: 6px solid;
+            backdrop-filter: blur(10px);
+        }
+
+        .notification.show {
+            transform: translateX(0);
+        }
+
+        .notification.success { 
+            background: linear-gradient(135deg, rgba(39, 174, 96, 0.95), rgba(33, 150, 83, 0.95)); 
+            border-left-color: rgba(46, 204, 113, 0.8);
+        }
+        .notification.error { 
+            background: linear-gradient(135deg, rgba(231, 76, 60, 0.95), rgba(192, 57, 43, 0.95)); 
+            border-left-color: rgba(235, 87, 87, 0.8);
+        }
+        .notification.info { 
+            background: linear-gradient(135deg, rgba(52, 152, 219, 0.95), rgba(41, 128, 185, 0.95)); 
+            border-left-color: rgba(86, 204, 242, 0.8);
+        }
+        
+        .notification i {
+            margin-right: 15px;
+            font-size: 1.3rem;
+        }
+
+        .progress-indicator {
+            display: none;
+            text-align: center;
+            padding: 30px 25px;
+            margin: 35px 0;
+            border-radius: var(--border-radius);
+            background: linear-gradient(135deg, rgba(236, 240, 241, 0.95), rgba(255, 255, 255, 0.95));
+            color: var(--primary-blue);
+            font-weight: 700;
+            box-shadow: var(--box-shadow);
+            border-left: 6px solid var(--secondary-blue);
+            animation: pulse 1.5s infinite;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* ----------------------------------- */
+        /* FOOTER ELEGANTE */
+        /* ----------------------------------- */
+        footer {
+            text-align: center;
+            margin-top: 60px;
+            padding: 40px 0;
+            color: #7f8c8d;
+            font-size: 1rem;
+            border-top: 2px solid rgba(236, 240, 241, 0.8);
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: var(--border-radius) var(--border-radius) 0 0;
+            box-shadow: 0 -10px 30px rgba(44, 62, 80, 0.08);
+        }
+        
+        footer .heart {
+            color: var(--error-color);
+            margin: 0 5px;
+            animation: pulse 1.5s infinite;
+        }
+
+        /* ----------------------------------- */
+        /* RESPONSIVIDADE */
+        /* ----------------------------------- */
+        @media (max-width: 1100px) {
+            .app-container {
+                flex-direction: column;
+                gap: 30px;
+            }
+            
+            .form-section, .preview-section {
+                min-width: 100%;
+            }
+            
+            .preview-section {
+                order: -1;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 0 15px;
+            }
+            
+            header {
+                height: 140px;
+            }
+            
+            header.compact {
+                height: 100px;
+            }
+            
+            header h1 {
+                font-size: 2.2rem;
+            }
+            
+            .greeting {
+                font-size: 1.1rem;
+            }
+            
+            .current-datetime {
+                font-size: 0.9rem;
+            }
+            
+            .form-row, .action-buttons, .quick-actions {
+                flex-direction: column;
+                gap: 20px;
+            }
+            
+            .action-buttons {
+                grid-template-columns: 1fr;
+            }
+            
+            .btn, .quick-action-btn {
+                width: 100%;
+                justify-content: center;
+                padding: 20px 25px;
+            }
+            
+            .preview-content {
+                max-height: 550px;
+            }
+            
+            .preview-dates {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            body {
+                padding-top: 140px;
+            }
+            
+            .notification {
+                top: 150px;
+                right: 15px;
+                left: 15px;
+                max-width: none;
+            }
+        }
+
+        @media (max-width: 480px) {
+            header h1 {
+                font-size: 1.8rem;
+            }
+            
+            header h1::before {
+                font-size: 1.8rem;
+            }
+            
+            .section-card {
+                padding: 25px;
+            }
+            
+            .form-section, .preview-section {
+                padding: 25px;
+            }
+            
+            .upload-area {
+                padding: 40px 25px;
+            }
+            
+            .photos-preview {
+                grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+                gap: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="floral-decoration floral-1"></div>
+    <div class="floral-decoration floral-2"></div>
+    
+    <div id="notification" class="notification"></div>
+    
+    <header id="main-header">
+        <div class="header-top">
+            <div class="logo">
+                <i class="fas fa-car" style="font-size: 1.8rem; color: var(--accent-yellow);"></i>
+            </div>
+            <div class="datetime-container">
+                <div class="greeting" id="greeting">
+                    <i class="fas fa-sun"></i>
+                    <span id="greeting-text">Bom dia!</span>
+                </div>
+                <div class="current-datetime" id="current-datetime">
+                    <i class="fas fa-calendar-alt"></i>
+                    <span id="date-text">Carregando...</span>
+                    <i class="fas fa-clock" style="margin-left: 15px;"></i>
+                    <span id="time-text">00:00:00</span>
+                </div>
+            </div>
+        </div>
+        <div class="container">
+            
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="app-container">
+            <section class="form-section">
+                
+                <div class="quick-actions">
+                    <button class="quick-action-btn" id="preencher_exemplo">
+                        <i class="fa-solid fa-wand-magic-sparkles"></i> Preencher Exemplo
+                    </button>
+                    <button class="quick-action-btn" id="limpar_formulario">
+                        <i class="fa-solid fa-broom"></i> Limpar Formulário
+                    </button>
+                    <button class="quick-action-btn" id="tour_btn">
+                        <i class="fa-solid fa-play-circle"></i> Iniciar Tour
+                    </button>
+                </div>
+
+                <div class="section-card">
+                    <h3><i class="fa-solid fa-building"></i> Dados da Empresa</h3>
+
+                    <div class="form-group">
+                        <label class="required"><i class="fa-solid fa-industry"></i> Empresa</label>
+                        <input type="text" id="empresa_fixo" value="ITA Frotas" readonly style="font-weight: 700; background: linear-gradient(135deg, #ecf0f1, #ffffff); border-color: rgba(52, 152, 219, 0.3); color: var(--primary-blue);">
+                        <input type="hidden" id="empresa" value="ITA Frotas">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="endereco" class="required"><i class="fa-solid fa-map-marker-alt"></i> Endereço (ITA Frotas)</label>
+                        <input type="text" id="endereco" placeholder="Ex: Av. República do Líbano, 1551 - St. Oeste, Goiânia - GO" required>
+                        <div class="form-hint"><i class="fa-solid fa-lightbulb"></i> Digite o endereço completo da empresa</div>
+                    </div>
+                </div>
+
+                <div class="section-card">
+                    <h3><i class="fa-solid fa-user"></i> Dados do Cliente/Veículo</h3>
+
+                    <div class="form-group">
+                        <label for="cliente" class="required"><i class="fa-solid fa-user-tie"></i> Cliente</label>
+                        <input type="text" id="cliente" placeholder="Nome completo do cliente" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="cliente_endereco" class="required"><i class="fa-solid fa-home"></i> Endereço do Cliente</label>
+                        <input type="text" id="cliente_endereco" placeholder="Endereço completo do cliente" required>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="cliente_telefone" class="required"><i class="fa-solid fa-phone"></i> Telefone do Cliente</label>
+                            <input type="text" id="cliente_telefone" placeholder="(00) 00000-0000" required pattern="^\(\d{2}\) \d{5}-\d{4}$">
+                            <div class="form-hint"><i class="fa-solid fa-lightbulb"></i> Formato: (00) 00000-0000</div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="cliente_email"><i class="fa-solid fa-envelope"></i> E-mail do Cliente</label>
+                            <input type="email" id="cliente_email" placeholder="cliente@exemplo.com">
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="placa_carro" class="required"><i class="fa-solid fa-car"></i> Placa do Carro</label>
+                            <input type="text" id="placa_carro" placeholder="ABC-1D23" required pattern="^[A-Z]{3}-\d[A-Z]\d{2}$" style="text-transform: uppercase;">
+                            <div class="form-hint"><i class="fa-solid fa-lightbulb"></i> Formato: ABC-1D23 (Mercosul)</div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="modelo_carro" class="required"><i class="fa-solid fa-car-side"></i> Modelo do Carro</label>
+                            <input type="text" id="modelo_carro" placeholder="Ex: VW Gol 1.0 2020 Preto" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="porcentagem_sinistro" class="required"><i class="fa-solid fa-percentage"></i> Acréscimo de Sinistro (%)</label>
+                        <select id="porcentagem_sinistro" required>
+                            <option value="0" selected>0% (Sem Sinistro)</option>
+                            <option value="5">5%</option>
+                            <option value="10">10%</option>
+                            <option value="15">15%</option>
+                            <option value="20">20%</option>
+                            <option value="25">25%</option>
+                            <option value="30">30%</option>
+                            <option value="35">35%</option>
+                            <option value="40">40%</option>
+                            <option value="45">45%</option>
+                            <option value="50">50%</option>
+                        </select>
+                        <div class="form-hint"><i class="fa-solid fa-lightbulb"></i> Percentual aplicado sobre o subtotal em caso de sinistro</div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="validade"><i class="fa-solid fa-calendar-alt"></i> Validade do Orçamento (dias)</label>
+                        <input type="number" id="validade" value="30" min="1" max="365" step="1">
+                        <div class="form-hint"><i class="fa-solid fa-lightbulb"></i> Dias até a expiração do orçamento</div>
+                    </div>
+                </div>
+
+                <div class="section-card" id="itens-section">
+                    <h3><i class="fa-solid fa-list"></i> Itens do Orçamento</h3>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="item_descricao" class="required"><i class="fa-solid fa-file-alt"></i> Descrição</label>
+                            <input type="text" id="item_descricao" placeholder="Ex: Troca de óleo do motor" required>
+                        </div>
+
+                        <div class="form-group" style="flex: 0.5;">
+                            <label for="item_quantidade" class="required"><i class="fa-solid fa-hashtag"></i> Qtd</label>
+                            <input type="number" id="item_quantidade" value="1" min="1" max="999" step="1" required>
+                        </div>
+
+                        <div class="form-group" style="flex: 0.8;">
+                            <label for="item_valor" class="required"><i class="fa-solid fa-dollar-sign"></i> Valor Unit. (R$)</label>
+                            <input type="text" id="item_valor" placeholder="0,00" required pattern="^\d+(,\d{2})?$">
+                            <div class="form-hint"><i class="fa-solid fa-lightbulb"></i> Use vírgula para centavos</div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <button class="btn btn-primary" id="adicionar_item">
+                            <i class="fa-solid fa-plus"></i> Adicionar Item
+                        </button>
+                        <div class="form-hint"><i class="fa-solid fa-keyboard"></i> Pressione <strong>Enter</strong> no campo de valor para adicionar rapidamente</div>
+                    </div>
+
+                    <div style="overflow-x: auto;">
+                        <table class="items-table">
+                            <thead>
+                                <tr>
+                                    <th>Descrição</th>
+                                    <th style="width: 12%; text-align: center;">Qtd</th>
+                                    <th style="width: 20%; text-align: right;">Valor Unit.</th>
+                                    <th style="width: 20%; text-align: right;">Total</th>
+                                    <th style="width: 12%; text-align: center;">Ação</th>
+                                </tr>
+                            </thead>
+                            <tbody id="itens_tbody">
+                                <tr class="empty-row" style="text-align: center;">
+                                    <td colspan="5">
+                                        <div style="padding: 50px 0; color: #7f8c8d;">
+                                            <i class="fa-solid fa-cart-plus" style="font-size: 2.5rem; margin-bottom: 20px; display: block; color: #bdc3c7;"></i>
+                                            Nenhum item adicionado ainda. Comece adicionando itens acima.
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="summary-card" id="resumo_orcamento" style="display: none;">
+                        <h3><i class="fa-solid fa-calculator"></i> Resumo do Orçamento</h3>
+                        <div class="summary-item">
+                            <span>Subtotal:</span>
+                            <span id="resumo_subtotal">R$ 0,00</span>
+                        </div>
+                        
+                        <div class="summary-item sinistro">
+                            <span id="label_acrescimo">Acréscimo Sinistro (0%):</span>
+                            <span id="resumo_acrescimo">R$ 0,00</span>
+                        </div>
+                        <div class="summary-item summary-total">
+                            <span>Total Geral:</span>
+                            <span id="resumo_total">R$ 0,00</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="section-card">
+                    <h3><i class="fa-solid fa-camera"></i> Fotos da Avaria</h3>
+                    <p style="margin-bottom: 15px; color: #666;">Adicione fotos para documentar a avaria (máx. 5MB por foto).</p>
+
+                    <div class="upload-area" id="upload_area">
+                        <i class="fa-solid fa-cloud-arrow-up"></i>
+                        <p style="font-size: 1.3rem; margin: 15px 0; font-weight: 600; color: var(--primary-blue);">Clique ou arraste fotos aqui</p>
+                        <p class="form-hint" style="margin-top: 5px;"><i class="fa-solid fa-image"></i> Formatos suportados: JPG, PNG, GIF. As fotos serão otimizadas automaticamente.</p>
+                        <input type="file" id="photo_input" accept="image/jpeg,image/png,image/gif" multiple style="display: none;">
+                    </div>
+
+                    <div class="photos-preview" id="photos_preview">
+                    </div>
+                </div>
+
+                <div class="section-card">
+                    <h3><i class="fa-solid fa-note-sticky"></i> Observações</h3>
+                    <div class="form-group">
+                        <label for="observacoes"><i class="fa-solid fa-edit"></i> Observações Adicionais</label>
+                        <textarea id="observacoes" rows="5" placeholder="Digite observações importantes sobre o orçamento, condições especiais, ou informações adicionais para o cliente..."></textarea>
+                        <div class="form-hint"><i class="fa-solid fa-lightbulb"></i> Estas observações serão incluídas no orçamento final</div>
+                    </div>
+                </div>
+
+                <div class="progress-indicator" id="progress_indicator">
+                    <i class="fa-solid fa-spinner fa-spin"></i> Gerando PDF (Otimizando imagens), aguarde...
+                    <div class="progress-bar"></div>
+                </div>
+
+                <div class="action-buttons">
+                    <button class="btn btn-success" id="gerar_pdf">
+                        <i class="fa-solid fa-file-pdf"></i> Gerar PDF
+                    </button>
+                    <button class="btn btn-warning" id="salvar_rascunho">
+                        <i class="fa-solid fa-floppy-disk"></i> Salvar Rascunho
+                    </button>
+                    <button class="btn btn-danger" id="limpar_tudo">
+                        <i class="fa-solid fa-trash-can"></i> Limpar Tudo
+                    </button>
+                </div>
+            </section>
+
+            <section class="preview-section">
+                <h2><i class="fa-solid fa-eye"></i> Prévia do Orçamento (Tempo Real)</h2>
+                <div class="preview-content" id="preview_content">
+                    <div class="empty-message">
+                        <i class="fa-solid fa-magic"></i>
+                        Comece a preencher os dados ao lado para ver a prévia do orçamento em tempo real!
+                        <p style="margin-top: 20px; font-size: 1.1rem; max-width: 450px; margin-left: auto; margin-right: auto;">
+                            A prévia será atualizada automaticamente conforme você preenche o formulário.
+                        </p>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </div>
+
+    <footer>
+        <div class="container">
+            <p>© 2025 Sistema de Orçamento Elegante ITA Frotas | Desenvolvido com <span class="heart">💖</span> para facilitar seu trabalho</p>
+            <p style="margin-top: 10px; font-size: 0.9rem; opacity: 0.8;">Versão Elegante 3.0 | Design Feminino | Experiência Aprimorada</p>
+        </div>
+    </footer>
+
+<script>
+    (function() {
+        // Constantes e configurações
+        const MAX_FILE_SIZE_BYTES = 5 * 1024 * 1024;
+        const STORAGE_KEY = 'orcamento_ita_frotas_v3';
+        const MAX_IMAGE_WIDTH = 800;
+        const IMAGE_QUALITY = 0.7;
+
+        // Estado da aplicação
+        let orcamento = {
+            empresa: 'ITA Frotas',
+            endereco: '',
+            placa_carro: '', 
+            modelo_carro: '',
+            cliente: '',
+            cliente_endereco: '',
+            cliente_telefone: '',
+            cliente_email: '',
+            validade: 30,
+            porcentagem_sinistro: '0', 
+            itens: [],
+            observacoes: '',
+            fotos: [],
+            ultimaAtualizacao: new Date().toISOString()
+        };
+
+        // Elementos DOM
+        const elementos = {
+            header: document.getElementById('main-header'),
+            greetingText: document.getElementById('greeting-text'),
+            dateText: document.getElementById('date-text'),
+            timeText: document.getElementById('time-text'),
+            endereco: document.getElementById('endereco'),
+            placa_carro: document.getElementById('placa_carro'),
+            modelo_carro: document.getElementById('modelo_carro'),
+            cliente: document.getElementById('cliente'),
+            cliente_endereco: document.getElementById('cliente_endereco'),
+            cliente_telefone: document.getElementById('cliente_telefone'),
+            cliente_email: document.getElementById('cliente_email'),
+            validade: document.getElementById('validade'),
+            porcentagem_sinistro: document.getElementById('porcentagem_sinistro'),
+            item_descricao: document.getElementById('item_descricao'),
+            item_quantidade: document.getElementById('item_quantidade'),
+            item_valor: document.getElementById('item_valor'),
+            itens_tbody: document.getElementById('itens_tbody'),
+            observacoes: document.getElementById('observacoes'),
+            adicionar_item: document.getElementById('adicionar_item'),
+            gerar_pdf: document.getElementById('gerar_pdf'),
+            limpar_tudo: document.getElementById('limpar_tudo'),
+            salvar_rascunho: document.getElementById('salvar_rascunho'),
+            preencher_exemplo: document.getElementById('preencher_exemplo'),
+            limpar_formulario: document.getElementById('limpar_formulario'),
+            preview_content: document.getElementById('preview_content'),
+            upload_area: document.getElementById('upload_area'),
+            photo_input: document.getElementById('photo_input'),
+            photos_preview: document.getElementById('photos_preview'),
+            progress_indicator: document.getElementById('progress_indicator'),
+            notification: document.getElementById('notification'),
+            resumo_orcamento: document.getElementById('resumo_orcamento'),
+            resumo_subtotal: document.getElementById('resumo_subtotal'),
+            resumo_acrescimo: document.getElementById('resumo_acrescimo'),
+            resumo_total: document.getElementById('resumo_total'),
+            label_acrescimo: document.getElementById('label_acrescimo'),
+            tourBtn: document.getElementById('tour_btn')
+        };
+
+        // ----------------------------------------------------
+        // FUNÇÕES UTILITÁRIAS
+        // ----------------------------------------------------
+
+        function atualizarDataHora() {
+            const agora = new Date();
+            const horas = agora.getHours();
+            const minutos = agora.getMinutes().toString().padStart(2, '0');
+            const segundos = agora.getSeconds().toString().padStart(2, '0');
+            
+            // Atualizar saudação
+            let saudacao = '';
+            let icone = '';
+            
+            if (horas >= 5 && horas < 12) {
+                saudacao = 'Bom dia!';
+                icone = 'fa-sun';
+            } else if (horas >= 12 && horas < 18) {
+                saudacao = 'Boa tarde!';
+                icone = 'fa-cloud-sun';
+            } else {
+                saudacao = 'Boa noite!';
+                icone = 'fa-moon';
+            }
+            
+            elementos.greetingText.innerHTML = `<i class="fas ${icone}"></i> ${saudacao}`;
+            
+            // Atualizar data e hora
+            const opcoesData = { 
+                weekday: 'long', 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric' 
+            };
+            const dataFormatada = agora.toLocaleDateString('pt-BR', opcoesData);
+            
+            elementos.dateText.textContent = dataFormatada;
+            elementos.timeText.textContent = `${horas.toString().padStart(2, '0')}:${minutos}:${segundos}`;
+        }
+
+        function formatarMoeda(valor) {
+            const num = parseFloat(valor) || 0;
+            return num.toLocaleString('pt-BR', { 
+                style: 'currency', 
+                currency: 'BRL',
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            });
+        }
+
+        function parseMoeda(str) {
+            if (typeof str !== 'string') return parseFloat(str) || 0;
+            return parseFloat(str.replace(/\./g, '').replace(',', '.')) || 0;
+        }
+
+        function formatarTelefone(telefone) {
+            return telefone.replace(/\D/g, '')
+                .replace(/^(\d{2})(\d)/g, '($1) $2')
+                .replace(/(\d{5})(\d)/, '$1-$2');
+        }
+
+        function formatarPlaca(placa) {
+            return placa.replace(/\W/g, '').toUpperCase()
+                .replace(/^([A-Z]{3})([0-9A-Z]{4})$/, '$1-$2');
+        }
+
+        function showNotification(message, type = 'info', duration = 3000) {
+            const icons = {
+                success: 'fa-circle-check',
+                error: 'fa-circle-exclamation',
+                info: 'fa-circle-info'
+            };
+            
+            elementos.notification.innerHTML = `
+                <i class="fa-solid ${icons[type] || 'fa-circle-info'}"></i>
+                <span>${message}</span>
+            `;
+            elementos.notification.className = `notification show ${type}`;
+            
+            setTimeout(() => {
+                elementos.notification.classList.remove('show');
+            }, duration);
+        }
+
+        function showProgress(message) {
+            elementos.progress_indicator.innerHTML = `
+                <i class="fa-solid fa-spinner fa-spin"></i>
+                <span>${message}</span>
+                <div class="progress-bar"></div>
+            `;
+            elementos.progress_indicator.style.display = 'block';
+        }
+
+        function updateProgress(percent) {
+            const progressBar = elementos.progress_indicator.querySelector('.progress-bar');
+            if (progressBar) {
+                progressBar.style.width = `${percent}%`;
+            }
+        }
+
+        function hideProgress() {
+            elementos.progress_indicator.style.display = 'none';
+        }
+
+        function updateSummaryAnimation() {
+            const subtotal = orcamento.itens.reduce((sum, item) => sum + (item.quantidade * item.valor_unitario), 0);
+            if (subtotal > 0) {
+                elementos.resumo_orcamento.classList.add('has-value');
+            } else {
+                elementos.resumo_orcamento.classList.remove('has-value');
+            }
+        }
+
+        // ----------------------------------------------------
+        // GERENCIAMENTO DE DADOS
+        // ----------------------------------------------------
+
+        function renderPreview() {
+            if (!orcamento.cliente || !orcamento.placa_carro || orcamento.itens.length === 0) {
+                elementos.preview_content.innerHTML = `
+                    <div class="empty-message">
+                        <i class="fa-solid fa-magic"></i>
+                        Comece a preencher os dados ao lado para ver a prévia do orçamento em tempo real!
+                        <p style="margin-top: 20px; font-size: 1.1rem; max-width: 450px; margin-left: auto; margin-right: auto;">
+                            A prévia será atualizada automaticamente conforme você preenche o formulário.
+                        </p>
+                    </div>
+                `;
+                return;
+            }
+
+            const subtotal = orcamento.itens.reduce((sum, item) => sum + (item.quantidade * item.valor_unitario), 0);
+            const percentualSinistro = parseFloat(orcamento.porcentagem_sinistro) / 100;
+            const acrescimoSinistro = subtotal * percentualSinistro;
+            const totalGeral = subtotal + acrescimoSinistro;
+
+            // Atualiza resumo
+            elementos.resumo_subtotal.textContent = formatarMoeda(subtotal);
+            elementos.resumo_acrescimo.textContent = formatarMoeda(acrescimoSinistro);
+            elementos.resumo_total.textContent = formatarMoeda(totalGeral);
+            elementos.label_acrescimo.textContent = `Acréscimo Sinistro (${orcamento.porcentagem_sinistro}%):`;
+            elementos.resumo_orcamento.style.display = 'block';
+            updateSummaryAnimation();
+
+            // Gera HTML da prévia
+            let html = `
+                <div class="preview-header">
+                    <h2>ORÇAMENTO DE SERVIÇOS</h2>
+                    <p style="color: var(--secondary-blue); font-weight: 600;">Nº ${new Date().getTime().toString().slice(-6)}</p>
+                    <p style="margin-top: 10px; color: #666; font-size: 0.9rem;">
+                        <i class="fa-solid fa-sync-alt"></i> Atualizado em tempo real
+                    </p>
+                </div>
+
+                <div class="company-info">
+                    <h4 style="color: var(--primary-blue); margin-bottom: 10px;">
+                        <i class="fa-solid fa-building"></i> EMPRESA
+                    </h4>
+                    <p><strong>${orcamento.empresa}</strong></p>
+                    <p>${orcamento.endereco}</p>
+                </div>
+
+                <div class="client-info">
+                    <h4 style="color: var(--primary-blue); margin-bottom: 10px;">
+                        <i class="fa-solid fa-user"></i> CLIENTE
+                    </h4>
+                    <p><strong>${orcamento.cliente}</strong></p>
+                    <p>${orcamento.cliente_endereco}</p>
+                    <p style="margin-top: 8px;">
+                        <i class="fa-solid fa-phone"></i> ${orcamento.cliente_telefone}
+                        ${orcamento.cliente_email ? ` | <i class="fa-solid fa-envelope"></i> ${orcamento.cliente_email}` : ''}
+                    </p>
+                    <p style="margin-top: 8px;">
+                        <i class="fa-solid fa-car"></i> ${orcamento.modelo_carro} | 
+                        <strong>Placa:</strong> ${orcamento.placa_carro}
+                    </p>
+                </div>
+                
+                <div class="preview-dates">
+                    <div>
+                        <strong><i class="fa-solid fa-calendar-check"></i> Emissão:</strong>
+                        ${new Date().toLocaleDateString('pt-BR')}
+                    </div>
+                    <div>
+                        <strong><i class="fa-solid fa-clock"></i> Validade:</strong>
+                        ${orcamento.validade} dias
+                    </div>
+                </div>
+
+                <table class="preview-table">
+                    <thead>
+                        <tr>
+                            <th style="width: 5%;">#</th>
+                            <th style="width: 50%;">DESCRIÇÃO</th>
+                            <th style="width: 10%;">QTD</th>
+                            <th style="width: 15%;">V. UNIT.</th>
+                            <th style="width: 15%;">TOTAL</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+
+            orcamento.itens.forEach((item, index) => {
+                const totalItem = item.quantidade * item.valor_unitario;
+                html += `
+                    <tr>
+                        <td style="text-align: center; font-weight: 600;">${index + 1}</td>
+                        <td>${item.descricao}</td>
+                        <td style="text-align: center;">${item.quantidade}</td>
+                        <td style="text-align: right;">${formatarMoeda(item.valor_unitario)}</td>
+                        <td style="text-align: right; font-weight: 600;">${formatarMoeda(totalItem)}</td>
+                    </tr>
+                `;
+            });
+            
+            html += `
+                <tr class="total-row">
+                    <td colspan="4" style="text-align: right; font-weight: 700;">SUBTOTAL</td>
+                    <td style="text-align: right; font-weight: 700;">${formatarMoeda(subtotal)}</td>
+                </tr>
+            `;
+
+            if (percentualSinistro > 0) {
+                html += `
+                    <tr class="total-sinistro-row">
+                        <td colspan="4" style="text-align: right; font-weight: 700;">
+                            ACRÉSCIMO SINISTRO (${orcamento.porcentagem_sinistro}%)
+                        </td>
+                        <td style="text-align: right; font-weight: 700;">${formatarMoeda(acrescimoSinistro)}</td>
+                    </tr>
+                `;
+            }
+
+            html += `
+                <tr class="total-row" style="background: linear-gradient(135deg, var(--primary-blue), var(--secondary-blue)); color: white;">
+                    <td colspan="4" style="text-align: right; font-weight: 700;">TOTAL GERAL</td>
+                    <td style="text-align: right; font-weight: 700; font-size: 1.1rem;">${formatarMoeda(totalGeral)}</td>
+                </tr>
+            `;
+
+            html += `</tbody></table>`;
+
+            if (orcamento.observacoes) {
+                html += `
+                    <div class="observations">
+                        <h4 style="color: var(--primary-blue); margin-bottom: 15px;">
+                            <i class="fa-solid fa-note-sticky"></i> OBSERVAÇÕES
+                        </h4>
+                        <p>${orcamento.observacoes.replace(/\n/g, '<br>')}</p>
+                    </div>
+                `;
+            }
+            
+            if (orcamento.fotos.length > 0) {
+                html += `
+                    <div class="observations">
+                        <h4 style="color: var(--primary-blue); margin-bottom: 15px;">
+                            <i class="fa-solid fa-images"></i> FOTOS DA AVARIA (${orcamento.fotos.length})
+                        </h4>
+                        <div class="photos-preview" style="grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); margin-top: 20px;">
+                `;
+                orcamento.fotos.forEach((base64Image, index) => {
+                    html += `
+                        <div class="photo-item" style="padding-top: 75%;">
+                            <img src="${base64Image}" alt="Foto ${index + 1}" style="object-fit: cover;">
+                        </div>
+                    `;
+                });
+                html += `</div></div>`;
+            }
+
+            elementos.preview_content.innerHTML = html;
+            
+            // Scroll suave para o final se adicionou novo item
+            if (orcamento.itens.length > 0) {
+                setTimeout(() => {
+                    elementos.preview_content.scrollTop = elementos.preview_content.scrollHeight;
+                }, 100);
+            }
+        }
+
+        function renderItemsTable() {
+            elementos.itens_tbody.innerHTML = '';
+
+            if (orcamento.itens.length === 0) {
+                elementos.itens_tbody.innerHTML = `
+                    <tr class="empty-row">
+                        <td colspan="5">
+                            <div style="padding: 50px 0; color: #7f8c8d; text-align: center;">
+                                <i class="fa-solid fa-cart-plus" style="font-size: 2.5rem; margin-bottom: 20px; display: block; color: #bdc3c7;"></i>
+                                Nenhum item adicionado ainda. Comece adicionando itens acima.
+                            </div>
+                        </td>
+                    </tr>
+                `;
+                elementos.resumo_orcamento.style.display = 'none';
+                return;
+            }
+
+            orcamento.itens.forEach((item, index) => {
+                const total = item.quantidade * item.valor_unitario;
+                const row = document.createElement('tr');
+                row.className = 'added';
+                row.innerHTML = `
+                    <td>${item.descricao}</td>
+                    <td style="text-align: center;">${item.quantidade}</td>
+                    <td style="text-align: right;">${formatarMoeda(item.valor_unitario)}</td>
+                    <td style="text-align: right; font-weight: 600;">${formatarMoeda(total)}</td>
+                    <td style="text-align: center;">
+                        <button class="btn-danger" style="padding: 10px 15px; font-size: 0.9rem; border-radius: 12px;" 
+                                data-index="${index}" title="Remover item">
+                            <i class="fa-solid fa-trash-can"></i>
+                        </button>
+                    </td>
+                `;
+                elementos.itens_tbody.appendChild(row);
+            });
+
+            // Adiciona animação de entrada
+            setTimeout(() => {
+                document.querySelectorAll('.added').forEach(row => {
+                    row.classList.remove('added');
+                });
+            }, 1000);
+
+            // Listeners para remoção
+            elementos.itens_tbody.querySelectorAll('.btn-danger').forEach(button => {
+                button.addEventListener('click', (e) => {
+                    const index = parseInt(e.currentTarget.dataset.index);
+                    const row = e.currentTarget.closest('tr');
+                    row.classList.add('removing');
+                    
+                    setTimeout(() => {
+                        orcamento.itens.splice(index, 1);
+                        renderItemsTable();
+                        renderPreview();
+                        salvarRascunho(false);
+                        showNotification('Item removido com sucesso!', 'success');
+                    }, 300);
+                });
+            });
+
+            renderPreview();
+        }
+
+        function adicionarItem() {
+            const descricao = elementos.item_descricao.value.trim();
+            const quantidade = parseInt(elementos.item_quantidade.value);
+            const valor_unitario = parseMoeda(elementos.item_valor.value);
+
+            if (!descricao || isNaN(quantidade) || quantidade <= 0 || isNaN(valor_unitario) || valor_unitario <= 0) {
+                showNotification('Por favor, preencha todos os campos do item corretamente.', 'error');
+                return;
+            }
+
+            orcamento.itens.push({
+                descricao,
+                quantidade,
+                valor_unitario,
+                dataAdicao: new Date().toISOString()
+            });
+
+            // Limpa e foca no próximo campo
+            elementos.item_descricao.value = '';
+            elementos.item_quantidade.value = '1';
+            elementos.item_valor.value = '';
+            elementos.item_descricao.focus();
+
+            renderItemsTable();
+            salvarRascunho(false);
+            showNotification('Item adicionado com sucesso!', 'success');
+        }
+
+        // ----------------------------------------------------
+        // GERENCIAMENTO DE FOTOS
+        // ----------------------------------------------------
+
+        async function compressImage(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    const img = new Image();
+                    img.onload = function() {
+                        const canvas = document.createElement('canvas');
+                        let width = img.width;
+                        let height = img.height;
+
+                        if (width > MAX_IMAGE_WIDTH) {
+                            height *= MAX_IMAGE_WIDTH / width;
+                            width = MAX_IMAGE_WIDTH;
+                        }
+
+                        canvas.width = width;
+                        canvas.height = height;
+
+                        const ctx = canvas.getContext('2d');
+                        ctx.drawImage(img, 0, 0, width, height);
+
+                        const dataURL = canvas.toDataURL('image/jpeg', IMAGE_QUALITY);
+                        resolve(dataURL);
+                    };
+                    img.onerror = reject;
+                    img.src = event.target.result;
+                };
+                reader.onerror = reject;
+                reader.readAsDataURL(file);
+            });
+        }
+
+        async function handleFiles(files) {
+            const filesArray = Array.from(files);
+            if (filesArray.length === 0) return;
+
+            showProgress(`Processando ${filesArray.length} foto(s)...`);
+            
+            let processedCount = 0;
+            const totalFiles = filesArray.length;
+            
+            for (const file of filesArray) {
+                try {
+                    if (file.size > MAX_FILE_SIZE_BYTES) {
+                        showNotification(`Arquivo "${file.name}" excede 5MB. Ignorado.`, 'error');
+                        continue;
+                    }
+
+                    const base64Image = await compressImage(file);
+                    orcamento.fotos.push(base64Image);
+                    
+                    processedCount++;
+                    updateProgress((processedCount / totalFiles) * 100);
+                    
+                } catch (error) {
+                    console.error('Erro ao processar imagem:', error);
+                    showNotification(`Erro ao processar "${file.name}"`, 'error');
+                }
+            }
+
+            hideProgress();
+            renderPhotosPreview();
+            renderPreview();
+            salvarRascunho(false);
+            showNotification(`${orcamento.fotos.length} foto(s) adicionada(s) com sucesso!`, 'success');
+        }
+
+        function renderPhotosPreview() {
+            elementos.photos_preview.innerHTML = '';
+            
+            if (orcamento.fotos.length === 0) return;
+
+            orcamento.fotos.forEach((base64, index) => {
+                const item = document.createElement('div');
+                item.className = 'photo-item';
+                item.innerHTML = `
+                    <img src="${base64}" alt="Foto ${index + 1}">
+                    <button class="photo-remove" data-index="${index}" title="Remover foto">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                `;
+                elementos.photos_preview.appendChild(item);
+            });
+
+            // Listeners para remover foto
+            elementos.photos_preview.querySelectorAll('.photo-remove').forEach(button => {
+                button.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    const index = parseInt(e.currentTarget.dataset.index);
+                    orcamento.fotos.splice(index, 1);
+                    renderPhotosPreview();
+                    renderPreview();
+                    salvarRascunho(false);
+                    showNotification('Foto removida com sucesso!', 'success');
+                });
+            });
+        }
+
+        // ----------------------------------------------------
+        // GERENCIAMENTO DE DADOS
+        // ----------------------------------------------------
+
+        function updateOrcamento() {
+            orcamento.endereco = elementos.endereco.value;
+            orcamento.placa_carro = elementos.placa_carro.value.toUpperCase();
+            orcamento.modelo_carro = elementos.modelo_carro.value;
+            orcamento.cliente = elementos.cliente.value;
+            orcamento.cliente_endereco = elementos.cliente_endereco.value;
+            orcamento.cliente_telefone = elementos.cliente_telefone.value;
+            orcamento.cliente_email = elementos.cliente_email.value;
+            orcamento.validade = parseInt(elementos.validade.value) || 30;
+            orcamento.porcentagem_sinistro = elementos.porcentagem_sinistro.value;
+            orcamento.observacoes = elementos.observacoes.value;
+            orcamento.ultimaAtualizacao = new Date().toISOString();
+            
+            renderPreview();
+        }
+
+        function salvarRascunho(showSuccess = true) {
+            try {
+                updateOrcamento();
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(orcamento));
+                if (showSuccess) {
+                    showNotification('Rascunho salvo automaticamente!', 'success', 2000);
+                }
+            } catch (e) {
+                console.error('Erro ao salvar rascunho:', e);
+            }
+        }
+
+        function carregarRascunho() {
+            try {
+                const savedData = localStorage.getItem(STORAGE_KEY);
+                if (savedData) {
+                    const loadedOrcamento = JSON.parse(savedData);
+                    
+                    // Preserva a estrutura do objeto
+                    Object.assign(orcamento, loadedOrcamento);
+                    
+                    // Atualiza interface
+                    elementos.endereco.value = orcamento.endereco || '';
+                    elementos.placa_carro.value = orcamento.placa_carro || '';
+                    elementos.modelo_carro.value = orcamento.modelo_carro || '';
+                    elementos.cliente.value = orcamento.cliente || '';
+                    elementos.cliente_endereco.value = orcamento.cliente_endereco || '';
+                    elementos.cliente_telefone.value = orcamento.cliente_telefone || '';
+                    elementos.cliente_email.value = orcamento.cliente_email || '';
+                    elementos.validade.value = orcamento.validade || 30;
+                    elementos.porcentagem_sinistro.value = orcamento.porcentagem_sinistro || '0';
+                    elementos.observacoes.value = orcamento.observacoes || '';
+                    
+                    // Renderiza dados
+                    renderItemsTable();
+                    renderPhotosPreview();
+                    renderPreview();
+                    
+                    if (orcamento.itens.length > 0) {
+                        showNotification('Rascunho anterior carregado com sucesso!', 'info');
+                    }
+                }
+            } catch (e) {
+                console.error('Erro ao carregar rascunho:', e);
+                localStorage.removeItem(STORAGE_KEY);
+            }
+        }
+
+        function limparTudo(apenasFormulario = false) {
+            if (!apenasFormulario && !confirm("Tem certeza que deseja limpar TODOS os dados e o rascunho salvo?")) {
+                return;
+            }
+
+            if (apenasFormulario && !confirm("Deseja limpar o formulário atual? O rascunho salvo permanecerá.")) {
+                return;
+            }
+
+            // Limpa objeto
+            Object.assign(orcamento, {
+                empresa: 'ITA Frotas',
+                endereco: '',
+                placa_carro: '', 
+                modelo_carro: '',
+                cliente: '',
+                cliente_endereco: '',
+                cliente_telefone: '',
+                cliente_email: '',
+                validade: 30,
+                porcentagem_sinistro: '0', 
+                itens: [],
+                observacoes: '',
+                fotos: [],
+                ultimaAtualizacao: new Date().toISOString()
+            });
+
+            // Limpa interface
+            elementos.endereco.value = '';
+            elementos.placa_carro.value = '';
+            elementos.modelo_carro.value = '';
+            elementos.cliente.value = '';
+            elementos.cliente_endereco.value = '';
+            elementos.cliente_telefone.value = '';
+            elementos.cliente_email.value = '';
+            elementos.validade.value = '30';
+            elementos.porcentagem_sinistro.value = '0';
+            elementos.observacoes.value = '';
+            elementos.item_descricao.value = '';
+            elementos.item_quantidade.value = '1';
+            elementos.item_valor.value = '';
+            
+            // Renderiza estado limpo
+            renderItemsTable();
+            renderPhotosPreview();
+            
+            // Limpa storage se necessário
+            if (!apenasFormulario) {
+                localStorage.removeItem(STORAGE_KEY);
+                showNotification('Todos os dados foram limpos com sucesso!', 'success');
+            } else {
+                showNotification('Formulário limpo! Rascunho mantido.', 'info');
+            }
+        }
+
+        function preencherExemplo() {
+            limparTudo(true);
+
+            // Dados de exemplo realistas
+            elementos.endereco.value = 'Av. República do Líbano, 1551 - St. Oeste, Goiânia - GO, 74115-030';
+            elementos.placa_carro.value = 'ABC-1D23';
+            elementos.modelo_carro.value = 'VW Gol 1.0 Highline 2022 Preto';
+            elementos.cliente.value = 'Maria da Silva Santos';
+            elementos.cliente_endereco.value = 'Rua das Flores, 123 - Centro, Goiânia - GO, 74000-000';
+            elementos.cliente_telefone.value = '(62) 99988-7766';
+            elementos.cliente_email.value = 'maria.silva@email.com';
+            elementos.validade.value = '15';
+            elementos.porcentagem_sinistro.value = '10';
+            elementos.observacoes.value = 'Orçamento válido por 15 dias. O valor final poderá sofrer alterações conforme avaliação técnica. Pagamento à vista com 5% de desconto ou parcelado em até 3x no cartão. O acréscimo de sinistro de 10% é aplicável conforme contrato.';
+            
+            // Itens de exemplo
+            orcamento.itens = [
+                { descricao: 'Troca de óleo do motor e filtro de óleo (Semi-sintético)', quantidade: 1, valor_unitario: 350.00 },
+                { descricao: 'Alinhamento e balanceamento das 4 rodas', quantidade: 1, valor_unitario: 180.00 },
+                { descricao: 'Troca de pastilhas de freio dianteiras', quantidade: 2, valor_unitario: 145.50 },
+                { descricao: 'Lavagem e higienização interna completa', quantidade: 1, valor_unitario: 120.00 },
+                { descricao: 'Troca de filtro de ar do motor', quantidade: 1, valor_unitario: 85.00 }
+            ];
+            
+            // Fotos de exemplo (simuladas)
+            orcamento.fotos = [];
+            
+            updateOrcamento();
+            renderItemsTable();
+            salvarRascunho(false);
+            showNotification('Dados de exemplo carregados com sucesso!', 'success');
+        }
+
+        // ----------------------------------------------------
+        // GERADOR DE PDF
+        // ----------------------------------------------------
+
+        async function gerarPDF() {
+            // Validação
+            if (!orcamento.cliente.trim()) {
+                showNotification('Por favor, preencha o nome do cliente.', 'error');
+                elementos.cliente.focus();
+                return;
+            }
+            
+            if (!orcamento.placa_carro.trim()) {
+                showNotification('Por favor, preencha a placa do veículo.', 'error');
+                elementos.placa_carro.focus();
+                return;
+            }
+            
+            if (orcamento.itens.length === 0) {
+                showNotification('Adicione pelo menos um item ao orçamento.', 'error');
+                elementos.item_descricao.focus();
+                return;
+            }
+
+            showProgress('Gerando PDF... Aguarde alguns instantes.');
+            
+            try {
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF('p', 'mm', 'a4');
+                let finalY = 20;
+                const margin = 20;
+                const pageWidth = doc.internal.pageSize.getWidth();
+                const textWidth = pageWidth - (2 * margin);
+
+                // Cabeçalho com cores azul e amarelo
+                doc.setFillColor(44, 62, 80);
+                doc.rect(0, 0, pageWidth, 40, 'F');
+                
+                doc.setFontSize(24);
+                doc.setTextColor(241, 196, 15);
+                doc.setFont('helvetica', 'bold');
+                doc.text('ORÇAMENTO DE SERVIÇOS', pageWidth / 2, 25, { align: 'center' });
+                
+                doc.setFontSize(10);
+                doc.setTextColor(255, 255, 255);
+                doc.setFont('helvetica', 'normal');
+                doc.text(`Nº ${new Date().getTime().toString().slice(-6)} | Emissão: ${new Date().toLocaleDateString('pt-BR')}`, pageWidth / 2, 32, { align: 'center' });
+                finalY = 50;
+
+                // Dados da empresa
+                doc.setFontSize(12);
+                doc.setTextColor(44, 62, 80);
+                doc.setFont('helvetica', 'bold');
+                doc.text('EMPRESA PRESTADORA:', margin, finalY);
+                doc.setFontSize(11);
+                doc.setTextColor(0);
+                doc.setFont('helvetica', 'normal');
+                finalY += 7;
+                doc.text(`${orcamento.empresa}`, margin + 5, finalY);
+                finalY += 5;
+                doc.text(`${orcamento.endereco}`, margin + 5, finalY);
+                finalY += 10;
+
+                // Dados do cliente
+                doc.setFontSize(12);
+                doc.setTextColor(44, 62, 80);
+                doc.setFont('helvetica', 'bold');
+                doc.text('DADOS DO CLIENTE:', margin, finalY);
+                doc.setFontSize(11);
+                doc.setTextColor(0);
+                doc.setFont('helvetica', 'normal');
+                finalY += 7;
+                doc.text(`Nome: ${orcamento.cliente}`, margin + 5, finalY);
+                finalY += 5;
+                doc.text(`Endereço: ${orcamento.cliente_endereco}`, margin + 5, finalY);
+                finalY += 5;
+                doc.text(`Contato: ${orcamento.cliente_telefone}${orcamento.cliente_email ? ` | ${orcamento.cliente_email}` : ''}`, margin + 5, finalY);
+                finalY += 5;
+                doc.text(`Veículo: ${orcamento.modelo_carro} | Placa: ${orcamento.placa_carro}`, margin + 5, finalY);
+                finalY += 5;
+                doc.text(`Validade: ${orcamento.validade} dias`, margin + 5, finalY);
+                finalY += 15;
+
+                // Atualiza progresso
+                updateProgress(30);
+
+                // Tabela de itens
+                const head = [['#', 'DESCRIÇÃO', 'QTD', 'V. UNIT.', 'TOTAL']];
+                const subtotal = orcamento.itens.reduce((sum, item) => sum + (item.quantidade * item.valor_unitario), 0);
+                const percentualSinistro = parseFloat(orcamento.porcentagem_sinistro) / 100;
+                const acrescimoSinistro = subtotal * percentualSinistro;
+                const totalGeral = subtotal + acrescimoSinistro;
+
+                const body = orcamento.itens.map((item, index) => [
+                    index + 1, 
+                    item.descricao, 
+                    item.quantidade, 
+                    formatarMoeda(item.valor_unitario), 
+                    formatarMoeda(item.quantidade * item.valor_unitario)
+                ]);
+
+                // Linhas de totais
+                body.push([
+                    { content: 'SUBTOTAL', colSpan: 4, styles: { halign: 'right', fontStyle: 'bold', fillColor: [236, 240, 241] } }, 
+                    { content: formatarMoeda(subtotal), styles: { halign: 'right', fontStyle: 'bold', fillColor: [236, 240, 241] } }
+                ]);
+                
+                if (percentualSinistro > 0) {
+                    body.push([
+                        { content: `ACRÉSCIMO SINISTRO (${orcamento.porcentagem_sinistro}%)`, colSpan: 4, styles: { halign: 'right', fontStyle: 'bold', fillColor: [241, 196, 15], textColor: [44, 62, 80] } }, 
+                        { content: formatarMoeda(acrescimoSinistro), styles: { halign: 'right', fontStyle: 'bold', fillColor: [241, 196, 15], textColor: [44, 62, 80] } }
+                    ]);
+                }
+                
+                body.push([
+                    { content: 'TOTAL GERAL DO ORÇAMENTO', colSpan: 4, styles: { halign: 'right', fontStyle: 'bold', fillColor: [44, 62, 80], textColor: [255, 255, 255] } }, 
+                    { content: formatarMoeda(totalGeral), styles: { halign: 'right', fontStyle: 'bold', fillColor: [44, 62, 80], textColor: [255, 255, 255] } }
+                ]);
+
+                updateProgress(50);
+
+                doc.autoTable({
+                    startY: finalY,
+                    head: head,
+                    body: body,
+                    theme: 'striped',
+                    headStyles: { 
+                        fillColor: [44, 62, 80],
+                        textColor: [255, 255, 255],
+                        fontSize: 10,
+                        fontStyle: 'bold'
+                    },
+                    styles: {
+                        fontSize: 9,
+                        cellPadding: 3,
+                        overflow: 'linebreak',
+                        lineWidth: 0.1
+                    },
+                    columnStyles: {
+                        0: { cellWidth: 8, halign: 'center' },
+                        1: { cellWidth: 'auto' },
+                        2: { cellWidth: 15, halign: 'center' },
+                        3: { cellWidth: 25, halign: 'right' },
+                        4: { cellWidth: 25, halign: 'right' }
+                    },
+                    margin: { left: margin, right: margin },
+                    didDrawPage: function (data) {
+                        // Número da página
+                        const pageCount = doc.internal.getNumberOfPages();
+                        doc.setFontSize(8);
+                        doc.setTextColor(150);
+                        doc.text(`Página ${data.pageNumber} de ${pageCount}`, pageWidth / 2, doc.internal.pageSize.height - 10, { align: 'center' });
+                    }
+                });
+
+                finalY = doc.autoTable.previous.finalY + 15;
+                updateProgress(70);
+
+                // Observações
+                if (orcamento.observacoes) {
+                    if (finalY > doc.internal.pageSize.getHeight() - 50) {
+                        doc.addPage();
+                        finalY = 20;
+                    }
+                    
+                    doc.setFontSize(12);
+                    doc.setTextColor(44, 62, 80);
+                    doc.setFont('helvetica', 'bold');
+                    doc.text('OBSERVAÇÕES:', margin, finalY);
+                    finalY += 7;
+                    
+                    doc.setFontSize(10);
+                    doc.setTextColor(0);
+                    doc.setFont('helvetica', 'normal');
+                    const splitText = doc.splitTextToSize(orcamento.observacoes, textWidth - 10);
+                    doc.text(splitText, margin + 5, finalY);
+                    finalY += splitText.length * 5 + 10;
+                }
+
+                // Fotos (se houver)
+                if (orcamento.fotos.length > 0) {
+                    if (finalY > doc.internal.pageSize.getHeight() - 100) {
+                        doc.addPage();
+                        finalY = 20;
+                    }
+                    
+                    doc.setFontSize(12);
+                    doc.setTextColor(44, 62, 80);
+                    doc.setFont('helvetica', 'bold');
+                    doc.text(`FOTOS DA AVARIA (${orcamento.fotos.length}):`, margin, finalY);
+                    finalY += 10;
+
+                    updateProgress(90);
+
+                    // Adiciona fotos (máximo 2 por página)
+                    const imageWidth = (pageWidth - 2 * margin - 10) / 2;
+                    const imageHeight = imageWidth * 0.75;
+                    
+                    for (let i = 0; i < orcamento.fotos.length; i++) {
+                        if (i > 0 && i % 2 === 0) {
+                            doc.addPage();
+                            finalY = 20;
+                        }
+                        
+                        const xPos = margin + (i % 2) * (imageWidth + 10);
+                        
+                        try {
+                            doc.addImage(orcamento.fotos[i], 'JPEG', xPos, finalY, imageWidth, imageHeight);
+                            
+                            if (i % 2 === 1 || i === orcamento.fotos.length - 1) {
+                                finalY += imageHeight + 15;
+                            }
+                        } catch (e) {
+                            console.warn('Erro ao adicionar imagem ao PDF:', e);
+                        }
+                    }
+                }
+
+                updateProgress(100);
+
+                // Nome do arquivo
+                const nomeArquivo = `Orcamento_${orcamento.cliente.split(' ')[0]}_${orcamento.placa_carro}_${new Date().toLocaleDateString('pt-BR').replace(/\//g, '-')}.pdf`;
+                
+                // Salva o PDF
+                doc.save(nomeArquivo);
+                
+                hideProgress();
+                showNotification('PDF gerado com sucesso! Download iniciado.', 'success');
+                
+                // Log de geração
+                console.log(`PDF gerado: ${nomeArquivo}`, {
+                    itens: orcamento.itens.length,
+                    fotos: orcamento.fotos.length,
+                    total: totalGeral
+                });
+                
+            } catch (error) {
+                hideProgress();
+                console.error('Erro ao gerar PDF:', error);
+                showNotification('Erro ao gerar PDF. Tente novamente.', 'error');
+            }
+        }
+
+        // ----------------------------------------------------
+        // TOUR GUIADO
+        // ----------------------------------------------------
+
+        function iniciarTour() {
+            showNotification('Tour guiado iniciado! Siga as instruções na tela.', 'info');
+            
+            const steps = [
+                {
+                    element: elementos.cliente,
+                    message: 'Comece preenchendo o nome do cliente aqui',
+                    position: 'top'
+                },
+                {
+                    element: elementos.placa_carro,
+                    message: 'Informe a placa do veículo (formato Mercosul: ABC-1D23)',
+                    position: 'top'
+                },
+                {
+                    element: elementos.item_descricao,
+                    message: 'Adicione os itens do orçamento aqui',
+                    position: 'top'
+                },
+                {
+                    element: elementos.adicionar_item,
+                    message: 'Clique aqui para adicionar o item à lista',
+                    position: 'top'
+                },
+                {
+                    element: elementos.upload_area,
+                    message: 'Arraste ou clique para adicionar fotos da avaria',
+                    position: 'top'
+                },
+                {
+                    element: elementos.gerar_pdf,
+                    message: 'Finalize clicando aqui para gerar o PDF do orçamento',
+                    position: 'top'
+                }
+            ];
+
+            let currentStep = 0;
+            
+            function showStep(stepIndex) {
+                if (stepIndex >= steps.length) {
+                    endTour();
+                    return;
+                }
+
+                const step = steps[stepIndex];
+                
+                // Remove destaque anterior
+                document.querySelectorAll('.tour-highlight').forEach(el => {
+                    el.classList.remove('tour-highlight');
+                });
+
+                // Destaca elemento atual
+                step.element.classList.add('tour-highlight');
+                
+                // Scroll para o elemento
+                step.element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+                // Mostra tooltip
+                const tooltip = document.createElement('div');
+                tooltip.className = 'floating-tooltip';
+                tooltip.innerHTML = `
+                    <div style="margin-bottom: 5px; font-weight: bold;">Passo ${stepIndex + 1} de ${steps.length}</div>
+                    <div>${step.message}</div>
+                    <div style="margin-top: 10px; font-size: 0.9em; opacity: 0.9;">
+                        <button onclick="window.currentTourStep = ${stepIndex - 1}; window.showTourStep(${stepIndex - 1});" ${stepIndex === 0 ? 'disabled style="opacity: 0.5;"' : ''}>Anterior</button>
+                        <button onclick="window.currentTourStep = ${stepIndex + 1}; window.showTourStep(${stepIndex + 1});" style="margin-left: 10px;">${stepIndex === steps.length - 1 ? 'Finalizar' : 'Próximo'}</button>
+                    </div>
+                `;
+                tooltip.style.top = step.position === 'top' 
+                    ? `${step.element.offsetTop - 180}px` 
+                    : `${step.element.offsetTop + step.element.offsetHeight + 10}px`;
+                tooltip.style.left = `${step.element.offsetLeft}px`;
+                tooltip.style.width = '300px';
+                tooltip.id = 'tour-tooltip';
+
+                document.body.appendChild(tooltip);
+                setTimeout(() => tooltip.style.opacity = '1', 10);
+            }
+
+            function endTour() {
+                document.querySelectorAll('.tour-highlight').forEach(el => {
+                    el.classList.remove('tour-highlight');
+                });
+                document.getElementById('tour-tooltip')?.remove();
+                showNotification('Tour concluído! Agora você já sabe usar o sistema.', 'success');
+            }
+
+            // Expor funções globalmente para os botões
+            window.currentTourStep = currentStep;
+            window.showTourStep = showStep;
+            
+            showStep(currentStep);
+        }
+
+        // ----------------------------------------------------
+        // INICIALIZAÇÃO E EVENT LISTENERS
+        // ----------------------------------------------------
+
+        function setupEventListeners() {
+            // Atualizar data e hora a cada segundo
+            atualizarDataHora();
+            setInterval(atualizarDataHora, 1000);
+
+            // Auto-save a cada 10 segundos
+            setInterval(() => {
+                if (document.hasFocus()) {
+                    salvarRascunho(false);
+                }
+            }, 10000);
+
+            // Scroll header compact
+            let lastScroll = 0;
+            window.addEventListener('scroll', () => {
+                const currentScroll = window.pageYOffset;
+                if (currentScroll > 100 && currentScroll > lastScroll) {
+                    elementos.header.classList.add('compact');
+                } else {
+                    elementos.header.classList.remove('compact');
+                }
+                lastScroll = currentScroll;
+            });
+
+            // Validação em tempo real
+            elementos.cliente_telefone.addEventListener('input', function(e) {
+                this.value = formatarTelefone(this.value);
+            });
+
+            elementos.placa_carro.addEventListener('input', function(e) {
+                this.value = formatarPlaca(this.value);
+            });
+
+            elementos.item_valor.addEventListener('input', function(e) {
+                let value = this.value.replace(/\D/g, '');
+                if (value.length > 2) {
+                    value = value.replace(/(\d+)(\d{2})$/, '$1,$2');
+                }
+                this.value = value;
+            });
+
+            // Itens
+            elementos.adicionar_item.addEventListener('click', adicionarItem);
+            
+            elementos.item_valor.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    adicionarItem();
+                }
+            });
+
+            // Navegação por Tab nos itens
+            elementos.item_descricao.addEventListener('keydown', (e) => {
+                if (e.key === 'Tab' && !e.shiftKey && elementos.item_descricao.value.trim()) {
+                    e.preventDefault();
+                    elementos.item_quantidade.focus();
+                }
+            });
+
+            // Botões principais
+            elementos.salvar_rascunho.addEventListener('click', () => salvarRascunho(true));
+            
+            elementos.limpar_tudo.addEventListener('click', () => limparTudo(false));
+            
+            elementos.limpar_formulario.addEventListener('click', () => limparTudo(true));
+            
+            elementos.preencher_exemplo.addEventListener('click', preencherExemplo);
+            
+            elementos.gerar_pdf.addEventListener('click', gerarPDF);
+            
+            elementos.tourBtn.addEventListener('click', iniciarTour);
+
+            // Upload de fotos
+            elementos.upload_area.addEventListener('click', () => elementos.photo_input.click());
+            
+            elementos.photo_input.addEventListener('change', (e) => {
+                handleFiles(e.target.files);
+                e.target.value = null;
+            });
+
+            // Drag & Drop
+            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                elementos.upload_area.addEventListener(eventName, preventDefaults, false);
+            });
+
+            function preventDefaults(e) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+
+            ['dragenter', 'dragover'].forEach(eventName => {
+                elementos.upload_area.addEventListener(eventName, () => {
+                    elementos.upload_area.classList.add('dragover');
+                }, false);
+            });
+
+            ['dragleave', 'drop'].forEach(eventName => {
+                elementos.upload_area.addEventListener(eventName, () => {
+                    elementos.upload_area.classList.remove('dragover');
+                }, false);
+            });
+
+            elementos.upload_area.addEventListener('drop', (e) => {
+                const files = e.dataTransfer.files;
+                handleFiles(files);
+            }, false);
+
+            // Atalhos de teclado
+            document.addEventListener('keydown', (e) => {
+                // Ctrl+S para salvar
+                if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+                    e.preventDefault();
+                    salvarRascunho(true);
+                }
+                // Ctrl+P para PDF
+                if ((e.ctrlKey || e.metaKey) && e.key === 'p') {
+                    e.preventDefault();
+                    gerarPDF();
+                }
+                // Ctrl+E para exemplo
+                if ((e.ctrlKey || e.metaKey) && e.key === 'e') {
+                    e.preventDefault();
+                    preencherExemplo();
+                }
+            });
+
+            // Listeners para atualização automática
+            const formInputs = [
+                elementos.endereco, elementos.placa_carro, elementos.modelo_carro,
+                elementos.cliente, elementos.cliente_endereco, elementos.cliente_telefone,
+                elementos.cliente_email, elementos.validade, elementos.porcentagem_sinistro,
+                elementos.observacoes
+            ];
+
+            formInputs.forEach(input => {
+                input.addEventListener('input', updateOrcamento);
+            });
+            
+            elementos.porcentagem_sinistro.addEventListener('change', updateOrcamento);
+        }
+
+        // ----------------------------------------------------
+        // INICIALIZAÇÃO DA APLICAÇÃO
+        // ----------------------------------------------------
+
+        window.addEventListener('load', () => {
+            // Carrega dados salvos
+            carregarRascunho();
+            
+            // Configura listeners
+            setupEventListeners();
+            
+            // Mostra mensagem de boas-vindas
+            setTimeout(() => {
+                if (orcamento.itens.length === 0) {
+                    showNotification('Bem-vindo ao Sistema de Orçamentos Elegante ITA Frotas!', 'info', 5000);
+                }
+            }, 1000);
+            
+            // Monitora alterações para auto-save
+            setInterval(() => {
+                if (document.hasFocus()) {
+                    const hasChanges = 
+                        elementos.endereco.value !== orcamento.endereco ||
+                        elementos.cliente.value !== orcamento.cliente ||
+                        elementos.observacoes.value !== orcamento.observacoes;
+                    
+                    if (hasChanges) {
+                        salvarRascunho(false);
+                    }
+                }
+            }, 30000);
+        });
+
+        // Expose para debug (opcional)
+        window.appState = orcamento;
+
+    })();
+</script>
+</body>
+</html>

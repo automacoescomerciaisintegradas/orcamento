@@ -1,0 +1,1683 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Orçamento - ITA Frotas</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha512-z3gLpd7yknf1YoNbCzqRKc4qyor8gaKU1qmn+CShxbuBusANI9QpRohGBreCFkKxLhei6S9CQXFEbbKuqLg0DA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
+
+    
+    <style>
+         /*
+        Desenvolvido por Wally Camelo Ferreira
+        Contato: wallycamelo@gmail.com
+        Telefone: 62998752663
+        */
+        /* ----------------------------------- */
+        /* VARIÁVEIS E RESET */
+        /* ----------------------------------- */
+        :root {
+            --primary-color: #2c3e50; /* Azul escuro/Chumbo */
+            --secondary-color: #3498db; /* Azul vibrante */
+            --accent-color: #e74c3c; /* Vermelho/Perigo */
+            --light-color: #ecf0f1; /* Cinza claro */
+            --dark-color: #34495e; /* Cinza mais escuro */
+            --success-color: #27ae60; /* Verde/Sucesso */
+            --warning-color: #f39c12; /* Amarelo/Aviso */
+            --border-radius: 8px;
+            --box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #f5f7fa;
+            color: #333;
+            line-height: 1.6;
+            /** A L T E R A Ç Ã O: Adiciona padding no topo para compensar o header fixo **/
+            padding-top: 250px; 
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* ----------------------------------- */
+        /* ALTERAÇÕES NO HEADER E VIDEO */
+        /* ----------------------------------- */
+        header {
+            background: black;
+            color: white;
+            padding: 0;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            /* REMOVIDO: margin-bottom: 2rem; */ 
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            /* Adiciona altura fixa para o menu/cabeçalho */
+            height: 250px; /* Ajuste esta altura conforme desejar */
+            
+            /** A L T E R A Ç Õ E S: Fixa o cabeçalho na tela **/
+            position: fixed; 
+            top: 0;
+            width: 100%;
+            z-index: 100; /* Garante que fique acima de todo o conteúdo */
+            
+            overflow: hidden; /* Garante que o vídeo não "vaze" */
+        }
+        
+        /* Container para o iframe do YouTube */
+        #youtube_header_video_container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none; /* Ignora cliques no iframe para permitir interação com o resto da página */
+            z-index: 0; /* Coloca o vídeo no fundo */
+            opacity: 0.7; /* Suaviza a cor do vídeo para melhor leitura do texto */
+            overflow: hidden;
+        }
+
+        /* Estilo para o iframe dentro do container para cobrir totalmente e centralizar */
+        #youtube_header_video_container iframe {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            min-width: 100%; 
+            min-height: 100%;
+            width: 177.77vh; /* (16/9)*100vh - Padrão 16:9 */
+            height: 56.25vw; /* (9/16)*100vw - Padrão 16:9 */
+            transform: translate(-50%, -50%);
+        }
+        
+        /* Container para o conteúdo do header (título, etc.) */
+        header .container {
+            position: relative; /* Move o container para frente (acima do vídeo) */
+            z-index: 1; /* Coloca o conteúdo acima do vídeo */
+            height: 100%; /* Ocupa a altura total do header */
+            display: flex;
+            flex-direction: column;
+            justify-content: center; /* Centraliza verticalmente o título */
+            align-items: center;
+            /* Adiciona um fundo escuro semi-transparente para melhor contraste do texto */
+            background-color: rgba(0, 0, 0, 0.2); 
+            width: 100%; /* Ocupa a largura total para o background de contraste */
+            padding: 20px;
+        }
+
+        header h1 {
+            color: var(--warning-color); /* Amarelo para destaque no título */
+            font-size: 2.8rem; /* Aumentado para melhor visualização sobre o vídeo */
+            margin: 0;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7); /* Sombra para o texto */
+        }
+
+        /* ----------------------------------- */
+        /* LAYOUT PRINCIPAL E SEÇÕES */
+        /* ----------------------------------- */
+        .app-container {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .form-section, .preview-section {
+            flex: 1;
+            min-width: 400px;
+            background: var(--light-color); /* Fundo sutil para a seção */
+            border-radius: var(--border-radius);
+            padding: 15px;
+            box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.05); /* Sombra interna para profundidade */
+        }
+
+        .section-card {
+            background: white;
+            border-radius: var(--border-radius);
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: var(--box-shadow);
+            transition: var(--transition);
+        }
+
+        .section-card:hover {
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+        }
+
+        h2, .section-card h3 {
+            color: var(--primary-color);
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid var(--light-color);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        h2 i, .section-card h3 i {
+            color: var(--secondary-color);
+        }
+
+        .form-group {
+            margin-bottom: 1.2rem;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: var(--dark-color);
+        }
+
+        input, textarea, select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: var(--border-radius);
+            font-size: 1rem;
+            transition: var(--transition);
+        }
+
+        input:focus, textarea:focus, select:focus {
+            border-color: var(--secondary-color);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+        }
+
+        .form-row {
+            display: flex;
+            gap: 15px;
+        }
+
+        .form-row .form-group {
+            flex: 1;
+        }
+
+        /* ----------------------------------- */
+        /* BOTÕES */
+        /* ----------------------------------- */
+        .btn {
+            padding: 12px 20px;
+            border: none;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn-primary { background-color: var(--secondary-color); color: white; }
+        .btn-primary:hover { background-color: #2980b9; transform: translateY(-2px); }
+
+        .btn-success { background-color: var(--success-color); color: white; }
+        .btn-success:hover { background-color: #219653; transform: translateY(-2px); }
+
+        .btn-danger { background-color: var(--accent-color); color: white; }
+        .btn-danger:hover { background-color: #c0392b; transform: translateY(-2px); }
+
+        .btn-warning { background-color: var(--warning-color); color: white; }
+        .btn-warning:hover { background-color: #e67e22; transform: translateY(-2px); }
+
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+
+        .quick-actions {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .quick-action-btn {
+            background-color: var(--light-color);
+            border: none;
+            border-radius: var(--border-radius);
+            padding: 8px 15px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .quick-action-btn:hover {
+            background-color: #dde4e6;
+        }
+
+        /* ----------------------------------- */
+        /* TABELAS E RESUMO */
+        /* ----------------------------------- */
+        .items-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            border-radius: var(--border-radius);
+            overflow: hidden;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+
+        .items-table th, .items-table td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+            font-size: 0.9rem;
+        }
+
+        .items-table th {
+            background-color: var(--primary-color);
+            color: white;
+            font-weight: 600;
+        }
+
+        .items-table tr:hover {
+            background-color: #f9f9f9;
+        }
+
+        .summary-card {
+            background: linear-gradient(135deg, var(--primary-color), var(--dark-color));
+            color: white;
+            border-radius: var(--border-radius);
+            padding: 15px;
+            margin-top: 20px;
+            box-shadow: var(--box-shadow);
+        }
+
+        .summary-card h3 {
+            margin-top: 0;
+            margin-bottom: 10px;
+            color: white;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+            padding-bottom: 5px;
+        }
+
+        .summary-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+        }
+        
+        /* Estilo para a nova linha de custo sinistro */
+        .summary-item.sinistro {
+            color: var(--warning-color); /* Cor amarela para o destaque */
+        }
+        
+        .summary-total {
+            font-weight: bold;
+            font-size: 1.2rem;
+            border-top: 1px solid rgba(255,255,255,0.3);
+            padding-top: 10px;
+            margin-top: 10px;
+        }
+
+        /* ----------------------------------- */
+        /* PRÉVIA (PREVIEW) */
+        /* ----------------------------------- */
+        .preview-content {
+            background: white;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: var(--border-radius);
+            min-height: 500px;
+            transition: var(--transition);
+        }
+
+        .preview-header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--primary-color);
+        }
+
+        .company-info, .client-info {
+            margin-bottom: 20px;
+            padding: 15px;
+            border-left: 5px solid var(--secondary-color);
+            background-color: #f8fafd;
+            border-radius: 0 var(--border-radius) var(--border-radius) 0;
+        }
+
+        .preview-dates {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            font-size: 0.95rem;
+            background-color: #eaf3f9;
+            padding: 10px 15px;
+            border-radius: var(--border-radius);
+            border: 1px solid var(--secondary-color);
+        }
+
+        .preview-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+
+        .preview-table th, .preview-table td {
+            padding: 10px;
+            border: 1px solid #ddd;
+            font-size: 0.9rem;
+        }
+
+        .preview-table th {
+            background-color: var(--primary-color);
+            color: white;
+            text-align: center;
+        }
+
+        .total-row {
+            font-weight: bold;
+            background-color: var(--light-color);
+        }
+        
+        /* Novo estilo para o total de sinistro na prévia */
+        .total-sinistro-row {
+            font-weight: bold;
+            background-color: var(--warning-color);
+            color: var(--primary-color);
+        }
+
+        .observations {
+            margin-top: 20px;
+            padding-top: 15px;
+            border-top: 1px dashed #ddd;
+        }
+
+        .empty-message {
+            text-align: center;
+            color: #7f8c8d;
+            padding: 40px 0;
+            font-style: italic;
+        }
+
+        /* ----------------------------------- */
+        /* UPLOAD DE FOTOS */
+        /* ----------------------------------- */
+        .upload-area {
+            border: 2px dashed #ccc;
+            border-radius: var(--border-radius);
+            padding: 30px;
+            text-align: center;
+            margin-bottom: 20px;
+            cursor: pointer;
+            transition: var(--transition);
+            position: relative;
+        }
+
+        .upload-area:hover, .upload-area.dragover {
+            border-color: var(--secondary-color);
+            background-color: #f8fafc;
+        }
+
+        .upload-area i {
+            font-size: 48px;
+            color: #ccc;
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        .photos-preview {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+            gap: 15px;
+            margin-top: 10px;
+        }
+
+        .photo-item {
+            position: relative;
+            border-radius: var(--border-radius);
+            overflow: hidden;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            /* Adicionado para manter a proporção no grid */
+            width: 100%;
+            padding-top: 100%; /* Cria um quadrado (1:1 aspect ratio) */
+        }
+        
+        /* Otimizado: a imagem fica dentro do item mantendo a proporção */
+        .photo-item img {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        .photo-remove {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background: rgba(231, 76, 60, 0.9);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 14px;
+            padding: 0;
+            line-height: 1;
+            transition: var(--transition);
+            z-index: 10; /* Garante que o botão fique acima da imagem */
+        }
+
+        .photo-remove:hover {
+            background: var(--accent-color);
+            transform: scale(1.1);
+        }
+
+        /* ----------------------------------- */
+        /* UTILITÁRIOS E FEEDBACK */
+        /* ----------------------------------- */
+        .progress-indicator {
+            display: none;
+            text-align: center;
+            padding: 15px 10px; /* Aumentei o padding */
+            margin: 20px 0; /* Aumentei a margem */
+            border-radius: var(--border-radius);
+            background-color: #e1f0fa;
+            color: var(--secondary-color);
+            font-weight: 600;
+            box-shadow: var(--box-shadow);
+        }
+
+        .progress-indicator.show {
+            display: block;
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 20px;
+            border-radius: var(--border-radius);
+            color: white;
+            font-weight: 600;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            z-index: 1000;
+            transform: translateX(150%);
+            transition: transform 0.3s ease;
+        }
+
+        .notification.show {
+            transform: translateX(0);
+        }
+
+        .notification.success { background-color: var(--success-color); }
+        .notification.error { background-color: var(--accent-color); }
+        .notification.info { background-color: var(--secondary-color); }
+
+        .form-hint {
+            font-size: 0.85rem;
+            color: #7f8c8d;
+            margin-top: 5px;
+        }
+
+        .required::after {
+            content: " *";
+            color: var(--accent-color);
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 40px;
+            padding: 20px 0;
+            color: #7f8c8d;
+            font-size: 0.9rem;
+            border-top: 1px solid #eee;
+        }
+
+        /* ----------------------------------- */
+        /* RESPONSIVIDADE */
+        /* ----------------------------------- */
+        @media (max-width: 900px) {
+            .app-container {
+                flex-direction: column;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 15px;
+            }
+            .form-row, .action-buttons, .quick-actions {
+                flex-direction: column;
+                gap: 10px;
+            }
+            .btn, .quick-action-btn {
+                width: 100%;
+                justify-content: center;
+            }
+            header h1 {
+                font-size: 2.2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="notification" class="notification"></div>
+    
+    <header>
+        <div id="youtube_header_video_container">
+        </div>
+
+        <div class="container">
+            <h1>Orçamento - MANUTENÇÃO 🛠️</h1>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="app-container">
+            <section class="form-section">
+                
+                <div class="quick-actions">
+                    <button class="quick-action-btn" id="preencher_exemplo">
+                        <i class="fa-solid fa-wand-magic-sparkles"></i> Preencher Exemplo
+                    </button>
+                    <button class="quick-action-btn" id="limpar_formulario">
+                        <i class="fa-solid fa-broom"></i> Limpar Formulário
+                    </button>
+                </div>
+
+                <div class="section-card">
+                    <h3><i class="fa-solid fa-building"></i> Dados da Empresa</h3>
+
+                    <div class="form-group">
+                        <label class="required">Empresa</label>
+                        <input type="text" id="empresa_fixo" value="ITA Frotas" readonly style="font-weight: bold; background-color: #f0f0f0;">
+                        <input type="hidden" id="empresa" value="ITA Frotas">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="endereco" class="required">Endereço (ITA Frotas)</label>
+                        <input type="text" id="endereco" placeholder="Endereço completo da ITA Frotas" required>
+                    </div>
+                </div>
+
+                <div class="section-card">
+                    <h3><i class="fa-solid fa-user"></i> Dados do Cliente/Veículo</h3>
+
+                    <div class="form-group">
+                        <label for="cliente" class="required">Cliente</label>
+                        <input type="text" id="cliente" placeholder="Nome do cliente" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="cliente_endereco" class="required">Endereço do Cliente</label>
+                        <input type="text" id="cliente_endereco" placeholder="Endereço completo do cliente" required>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="cliente_telefone" class="required">Telefone do Cliente</label>
+                            <input type="text" id="cliente_telefone" placeholder="(00) 00000-0000" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="cliente_email">E-mail do Cliente</label>
+                            <input type="email" id="cliente_email" placeholder="cliente@exemplo.com">
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="placa_carro" class="required">Placa do Carro</label>
+                            <input type="text" id="placa_carro" placeholder="ABC-1234" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="modelo_carro" class="required">Modelo do Carro</label>
+                            <input type="text" id="modelo_carro" placeholder="Marca/Modelo/Cor" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="porcentagem_sinistro" class="required">Acréscimo de Sinistro (%)</label>
+                        <select id="porcentagem_sinistro" required>
+                            <option value="0" selected>0% (Sem Sinistro)</option>
+                            <option value="5">5%</option>
+                            <option value="10">10%</option>
+                            <option value="15">15%</option>
+                            <option value="20">20%</option>
+                            <option value="25">25%</option>
+                            <option value="30">30%</option>
+                            <option value="35">35%</option>
+                            <option value="40">40%</option>
+                            <option value="45">45%</option>
+                            <option value="50">50%</option>
+                        </select>
+                        <div class="form-hint">Selecione o percentual de acréscimo em caso de sinistro (sobre o subtotal).</div>
+                    </div>
+                    <div class="form-group">
+                        <label for="validade">Validade do Orçamento (dias)</label>
+                        <input type="number" id="validade" value="30" min="1">
+                        <div class="form-hint">O orçamento será válido por este número de dias</div>
+                    </div>
+                </div>
+
+                <div class="section-card">
+                    <h3><i class="fa-solid fa-list"></i> Itens do Orçamento</h3>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="item_descricao" class="required">Descrição</label>
+                            <input type="text" id="item_descricao" placeholder="Descrição do item" required>
+                        </div>
+
+                        <div class="form-group" style="flex: 0.5;">
+                            <label for="item_quantidade" class="required">Qtd</label>
+                            <input type="number" id="item_quantidade" value="1" min="1" required>
+                        </div>
+
+                        <div class="form-group" style="flex: 0.8;">
+                            <label for="item_valor" class="required">Valor Unit. (R$)</label>
+                            <input type="text" id="item_valor" placeholder="0,00" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <button class="btn btn-primary" id="adicionar_item">
+                            <i class="fa-solid fa-plus"></i> Adicionar Item
+                        </button>
+                        <div class="form-hint">Pressione **Enter** no campo de valor para adicionar rapidamente</div>
+                    </div>
+
+                    <table class="items-table">
+                        <thead>
+                            <tr>
+                                <th>Descrição</th>
+                                <th style="width: 10%;">Qtd</th>
+                                <th style="width: 20%;">Valor Unit.</th>
+                                <th style="width: 20%;">Total</th>
+                                <th style="width: 10%;">Ação</th>
+                            </tr>
+                        </thead>
+                        <tbody id="itens_tbody">
+                            <tr class="empty-row" style="text-align: center;"><td colspan="5">Nenhum item adicionado ainda.</td></tr>
+                        </tbody>
+                    </table>
+
+                    <div class="summary-card" id="resumo_orcamento" style="display: none;">
+                        <h3>Resumo do Orçamento</h3>
+                        <div class="summary-item">
+                            <span>Subtotal:</span>
+                            <span id="resumo_subtotal">R$ 0,00</span>
+                        </div>
+                        
+                        <div class="summary-item sinistro">
+                            <span id="label_acrescimo">Acréscimo Sinistro (0%):</span>
+                            <span id="resumo_acrescimo">R$ 0,00</span>
+                        </div>
+                        <div class="summary-item summary-total">
+                            <span>Total Geral:</span>
+                            <span id="resumo_total">R$ 0,00</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="section-card">
+                    <h3><i class="fa-solid fa-camera"></i> Fotos da Avaria</h3>
+                    <p>Adicione fotos para documentar a avaria (máx. 5MB por foto).</p>
+
+                    <div class="upload-area" id="upload_area">
+                        <i class="fa-solid fa-cloud-arrow-up"></i>
+                        <p>Clique ou arraste fotos aqui</p>
+                        <p class="form-hint">Formatos suportados: JPG, PNG, GIF. **As fotos serão otimizadas para o PDF.**</p>
+                        <input type="file" id="photo_input" accept="image/jpeg, image/png, image/gif" multiple style="display: none;">
+                    </div>
+
+                    <div class="photos-preview" id="photos_preview">
+                    </div>
+                </div>
+
+                <div class="section-card">
+                    <h3><i class="fa-solid fa-note-sticky"></i> Observações</h3>
+                    <div class="form-group">
+                        <label for="observacoes">Observações Adicionais</label>
+                        <textarea id="observacoes" rows="4" placeholder="Observações adicionais sobre o orçamento"></textarea>
+                        <div class="form-hint">Estas observações serão incluídas no orçamento final</div>
+                    </div>
+                </div>
+
+                <div class="progress-indicator" id="progress_indicator">
+                    <i class="fa-solid fa-spinner fa-spin"></i> Gerando PDF (Otimizando imagens), aguarde...
+                </div>
+
+                <div class="action-buttons">
+                    <button class="btn btn-success" id="gerar_pdf">
+                        <i class="fa-solid fa-file-pdf"></i> Gerar PDF
+                    </button>
+                    <button class="btn btn-warning" id="salvar_rascunho">
+                        <i class="fa-solid fa-floppy-disk"></i> Salvar Rascunho
+                    </button>
+                    <button class="btn btn-danger" id="limpar_tudo">
+                        <i class="fa-solid fa-trash-can"></i> Limpar Tudo
+                    </button>
+                </div>
+            </section>
+
+            <section class="preview-section">
+                <h2><i class="fa-solid fa-eye"></i> Prévia do Orçamento (Tempo Real)</h2>
+                <div class="preview-content" id="preview_content">
+                    <div class="empty-message">
+                        Preencha os dados ao lado para ver a prévia do orçamento
+                    </div>
+                </div>
+            </section>
+        </div>
+    </div>
+
+    <footer>
+        <div class="container">
+            <p>Sistema de Orçamento © 2025 - Desenvolvido para ITA Frotas</p>
+        </div>
+    </footer>
+
+<script>
+    // Usa uma IIFE (Immediately Invoked Function Expression) para encapsular o código e evitar poluição do escopo global.
+    (function() {
+        // Constantes
+        const MAX_FILE_SIZE_BYTES = 5 * 1024 * 1024; // 5MB
+        const YOUTUBE_VIDEO_ID = 'podm3xtQVew'; 
+        const STORAGE_KEY = 'orcamento_rascunho_ita_mob';
+
+        // Dimensões de Otimização da Imagem (Crucial para velocidade e tamanho do arquivo)
+        const MAX_IMAGE_WIDTH = 800; // Largura máxima em pixels
+        const IMAGE_QUALITY = 0.7; // Qualidade de compressão (0.0 a 1.0)
+
+        // Objeto principal para armazenar os dados (mantido)
+        let orcamento = {
+            empresa: 'ITA Frotas',
+            endereco: '',
+            placa_carro: '', 
+            modelo_carro: '',
+            cliente: '',
+            cliente_endereco: '',
+            cliente_telefone: '',
+            cliente_email: '',
+            validade: 30,
+            porcentagem_sinistro: '0', 
+            itens: [],
+            observacoes: '',
+            fotos: [] // Base64 strings (agora comprimidas)
+        };
+
+        // Elementos DOM (mantido)
+        const elementos = {
+            endereco: document.getElementById('endereco'),
+            placa_carro: document.getElementById('placa_carro'),
+            modelo_carro: document.getElementById('modelo_carro'),
+            cliente: document.getElementById('cliente'),
+            cliente_endereco: document.getElementById('cliente_endereco'),
+            cliente_telefone: document.getElementById('cliente_telefone'),
+            cliente_email: document.getElementById('cliente_email'),
+            validade: document.getElementById('validade'),
+            porcentagem_sinistro: document.getElementById('porcentagem_sinistro'),
+            item_descricao: document.getElementById('item_descricao'),
+            item_quantidade: document.getElementById('item_quantidade'),
+            item_valor: document.getElementById('item_valor'),
+            itens_tbody: document.getElementById('itens_tbody'),
+            observacoes: document.getElementById('observacoes'),
+            adicionar_item: document.getElementById('adicionar_item'),
+            gerar_pdf: document.getElementById('gerar_pdf'),
+            limpar_tudo: document.getElementById('limpar_tudo'),
+            salvar_rascunho: document.getElementById('salvar_rascunho'),
+            preencher_exemplo: document.getElementById('preencher_exemplo'),
+            limpar_formulario: document.getElementById('limpar_formulario'),
+            preview_content: document.getElementById('preview_content'),
+            upload_area: document.getElementById('upload_area'),
+            photo_input: document.getElementById('photo_input'),
+            photos_preview: document.getElementById('photos_preview'),
+            progress_indicator: document.getElementById('progress_indicator'),
+            notification: document.getElementById('notification'),
+            resumo_orcamento: document.getElementById('resumo_orcamento'),
+            resumo_subtotal: document.getElementById('resumo_subtotal'),
+            resumo_acrescimo: document.getElementById('resumo_acrescimo'),
+            resumo_total: document.getElementById('resumo_total'),
+            label_acrescimo: document.getElementById('label_acrescimo')
+        };
+        
+        // ----------------------------------------------------
+        // FUNÇÕES UTILITÁRIAS
+        // ----------------------------------------------------
+
+        // Formata um número para a moeda brasileira (R$)
+        function formatarMoeda(valor) {
+            // Garante que o valor seja um número, ou 0 se for inválido
+            const num = parseFloat(valor) || 0;
+            return num.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+        }
+
+        // Converte o valor de moeda (string "10,50") para float (10.50)
+        function parseMoeda(str) {
+            if (typeof str !== 'string') return parseFloat(str) || 0;
+            return parseFloat(str.replace('.', '').replace(',', '.')) || 0;
+        }
+        
+        // Exibe uma notificação temporária
+        function showNotification(message, type = 'info') {
+            elementos.notification.textContent = message;
+            elementos.notification.className = `notification show ${type}`;
+            setTimeout(() => {
+                elementos.notification.className = 'notification';
+            }, 3000);
+        }
+
+        // Renderiza a prévia do orçamento
+        function renderPreview() {
+            // Verifica se os campos principais estão preenchidos para mostrar a prévia
+            if (!orcamento.cliente || !orcamento.placa_carro || orcamento.itens.length === 0) {
+                elementos.preview_content.innerHTML = `
+                    <div class="empty-message">
+                        Preencha os dados (Cliente, Placa e Itens) para ver a prévia.
+                    </div>
+                `;
+                return;
+            }
+
+            // Calcula totais
+            const subtotal = orcamento.itens.reduce((sum, item) => sum + (item.quantidade * item.valor_unitario), 0);
+            const percentualSinistro = parseFloat(orcamento.porcentagem_sinistro) / 100;
+            const acrescimoSinistro = subtotal * percentualSinistro;
+            const totalGeral = subtotal + acrescimoSinistro;
+
+            // Atualiza resumo no formulário
+            elementos.resumo_subtotal.textContent = formatarMoeda(subtotal);
+            elementos.resumo_acrescimo.textContent = formatarMoeda(acrescimoSinistro);
+            elementos.resumo_total.textContent = formatarMoeda(totalGeral);
+            elementos.label_acrescimo.textContent = `Acréscimo Sinistro (${orcamento.porcentagem_sinistro}%):`;
+            elementos.resumo_orcamento.style.display = 'block';
+
+            // Monta o HTML da Prévia
+            let html = `
+                <div class="preview-header">
+                    <h2>ORÇAMENTO DE SERVIÇOS</h2>
+                    <p>Orçamento No: ${new Date().getTime().toString().slice(-6)}</p>
+                </div>
+
+                <div class="company-info">
+                    <strong>EMPRESA:</strong> ${orcamento.empresa}<br>
+                    <strong>ENDEREÇO:</strong> ${orcamento.endereco}
+                </div>
+
+                <div class="client-info">
+                    <strong>CLIENTE:</strong> ${orcamento.cliente}<br>
+                    <strong>ENDEREÇO:</strong> ${orcamento.cliente_endereco}<br>
+                    <strong>CONTATO:</strong> ${orcamento.cliente_telefone} ${orcamento.cliente_email ? `| ${orcamento.cliente_email}` : ''}<br>
+                    <strong>VEÍCULO:</strong> ${orcamento.modelo_carro} | <strong>PLACA:</strong> ${orcamento.placa_carro}
+                </div>
+                
+                <div class="preview-dates">
+                    <span>Data de Emissão: ${new Date().toLocaleDateString('pt-BR')}</span>
+                    <span>Validade: ${orcamento.validade} dias (até ${new Date(Date.now() + orcamento.validade * 24 * 60 * 60 * 1000).toLocaleDateString('pt-BR')})</span>
+                </div>
+
+                <table class="preview-table">
+                    <thead>
+                        <tr>
+                            <th style="width: 5%;">#</th>
+                            <th style="width: 55%;">DESCRIÇÃO</th>
+                            <th style="width: 10%;">QTD</th>
+                            <th style="width: 15%;">V. UNIT.</th>
+                            <th style="width: 15%;">TOTAL</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+
+            orcamento.itens.forEach((item, index) => {
+                const totalItem = item.quantidade * item.valor_unitario;
+                html += `
+                        <tr>
+                            <td style="text-align: center;">${index + 1}</td>
+                            <td>${item.descricao}</td>
+                            <td style="text-align: center;">${item.quantidade}</td>
+                            <td style="text-align: right;">${formatarMoeda(item.valor_unitario)}</td>
+                            <td style="text-align: right;">${formatarMoeda(totalItem)}</td>
+                        </tr>
+                `;
+            });
+            
+            // Linha do Subtotal
+            html += `
+                <tr class="total-row">
+                    <td colspan="4" style="text-align: right;">SUBTOTAL</td>
+                    <td style="text-align: right;">${formatarMoeda(subtotal)}</td>
+                </tr>
+            `;
+
+            // Linha do Acréscimo Sinistro
+            if (percentualSinistro > 0) {
+                 html += `
+                    <tr class="total-sinistro-row">
+                        <td colspan="4" style="text-align: right;">ACRÉSCIMO SINISTRO (${orcamento.porcentagem_sinistro}%)</td>
+                        <td style="text-align: right;">${formatarMoeda(acrescimoSinistro)}</td>
+                    </tr>
+                `;
+            }
+
+            // Linha do Total Geral
+            html += `
+                <tr class="total-row" style="background-color: var(--secondary-color); color: white;">
+                    <td colspan="4" style="text-align: right;">TOTAL GERAL DO ORÇAMENTO</td>
+                    <td style="text-align: right;">${formatarMoeda(totalGeral)}</td>
+                </tr>
+            `;
+
+            html += `
+                    </tbody>
+                </table>
+            `;
+
+            // Observações
+            if (orcamento.observacoes) {
+                html += `
+                    <div class="observations">
+                        <strong>OBSERVAÇÕES:</strong>
+                        <p>${orcamento.observacoes.replace(/\n/g, '<br>')}</p>
+                    </div>
+                `;
+            }
+            
+            // Fotos
+            if (orcamento.fotos.length > 0) {
+                html += `
+                    <div class="observations">
+                        <strong>FOTOS DA AVARIA (${orcamento.fotos.length}):</strong>
+                        <div class="photos-preview" style="grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));">
+                `;
+                orcamento.fotos.forEach(base64Image => {
+                    html += `<div class="photo-item" style="padding-top: 56.25%; /* 16:9 aspect ratio para a prévia */"><img src="${base64Image}" alt="Foto da avaria" style="object-fit: contain;"></div>`;
+                });
+                html += `
+                        </div>
+                    </div>
+                `;
+            }
+
+            elementos.preview_content.innerHTML = html;
+        }
+
+        // ----------------------------------------------------
+        // LÓGICA DE ITENS
+        // ----------------------------------------------------
+
+        // Atualiza a tabela de itens no formulário
+        function renderItemsTable() {
+            elementos.itens_tbody.innerHTML = '';
+
+            if (orcamento.itens.length === 0) {
+                elementos.itens_tbody.innerHTML = '<tr class="empty-row" style="text-align: center;"><td colspan="5">Nenhum item adicionado ainda.</td></tr>';
+                elementos.resumo_orcamento.style.display = 'none';
+                return;
+            }
+
+            orcamento.itens.forEach((item, index) => {
+                const total = item.quantidade * item.valor_unitario;
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${item.descricao}</td>
+                    <td style="text-align: center;">${item.quantidade}</td>
+                    <td style="text-align: right;">${formatarMoeda(item.valor_unitario)}</td>
+                    <td style="text-align: right;">${formatarMoeda(total)}</td>
+                    <td style="text-align: center;">
+                        <button class="btn-danger" style="padding: 5px 8px; font-size: 0.75rem;" data-index="${index}">
+                            <i class="fa-solid fa-trash-can"></i>
+                        </button>
+                    </td>
+                `;
+                elementos.itens_tbody.appendChild(row);
+            });
+
+            // Adiciona listener para remover item
+            elementos.itens_tbody.querySelectorAll('.btn-danger').forEach(button => {
+                button.addEventListener('click', (e) => {
+                    const index = parseInt(e.currentTarget.dataset.index);
+                    orcamento.itens.splice(index, 1);
+                    renderItemsTable();
+                    renderPreview();
+                    showNotification('Item removido.', 'error');
+                });
+            });
+
+            renderPreview();
+        }
+
+        // Adiciona novo item
+        function adicionarItem() {
+            const descricao = elementos.item_descricao.value.trim();
+            const quantidade = parseInt(elementos.item_quantidade.value);
+            const valor_unitario = parseMoeda(elementos.item_valor.value);
+
+            if (!descricao || isNaN(quantidade) || quantidade <= 0 || isNaN(valor_unitario) || valor_unitario <= 0) {
+                showNotification('Por favor, preencha a descrição, quantidade e valor unitário do item corretamente.', 'error');
+                return;
+            }
+
+            orcamento.itens.push({
+                descricao,
+                quantidade,
+                valor_unitario
+            });
+
+            // Limpa campos do item e foca na descrição
+            elementos.item_descricao.value = '';
+            elementos.item_quantidade.value = '1';
+            elementos.item_valor.value = '';
+            elementos.item_descricao.focus();
+
+            renderItemsTable();
+            salvarRascunho(false); // Salva automaticamente
+            showNotification('Item adicionado!', 'success');
+        }
+
+        // ----------------------------------------------------
+        // LÓGICA DE FOTOS E UPLOAD
+        // ----------------------------------------------------
+
+        // Renderiza as miniaturas das fotos
+        function renderPhotosPreview() {
+            elementos.photos_preview.innerHTML = '';
+            
+            if (orcamento.fotos.length === 0) return;
+
+            orcamento.fotos.forEach((base64, index) => {
+                const item = document.createElement('div');
+                item.className = 'photo-item';
+                item.innerHTML = `
+                    <img src="${base64}" alt="Foto da avaria ${index + 1}">
+                    <button class="photo-remove" data-index="${index}"><i class="fa-solid fa-xmark"></i></button>
+                `;
+                elementos.photos_preview.appendChild(item);
+            });
+
+            // Adiciona listeners para remover foto
+            elementos.photos_preview.querySelectorAll('.photo-remove').forEach(button => {
+                button.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    const index = parseInt(e.currentTarget.dataset.index);
+                    orcamento.fotos.splice(index, 1);
+                    renderPhotosPreview();
+                    renderPreview();
+                    salvarRascunho(false);
+                    showNotification('Foto removida.', 'error');
+                });
+            });
+        }
+
+        // Função para comprimir e otimizar a imagem
+        function compressImage(file, callback) {
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                const img = new Image();
+                img.onload = function() {
+                    let canvas = document.createElement('canvas');
+                    let width = img.width;
+                    let height = img.height;
+
+                    // Redimensiona se for maior que o máximo
+                    if (width > MAX_IMAGE_WIDTH) {
+                        height *= MAX_IMAGE_WIDTH / width;
+                        width = MAX_IMAGE_WIDTH;
+                    }
+                    
+                    // Se a altura for muito maior que a largura (retrato), pode-se limitar a altura também,
+                    // mas mantive simples para limitar apenas a largura para garantir que caiba bem no PDF.
+
+                    canvas.width = width;
+                    canvas.height = height;
+
+                    let ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, width, height);
+
+                    // Converte de volta para Base64 com compressão
+                    const dataURL = canvas.toDataURL('image/jpeg', IMAGE_QUALITY);
+                    callback(dataURL);
+                };
+                img.src = event.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        // Lida com a seleção/drop de arquivos
+        function handleFiles(files) {
+            let filesArray = Array.from(files);
+            let processedCount = 0;
+            elementos.progress_indicator.classList.add('show');
+            elementos.progress_indicator.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Processando 0 de ${filesArray.length} fotos...`;
+
+            filesArray.forEach((file, index) => {
+                if (file.size > MAX_FILE_SIZE_BYTES) {
+                    showNotification(`O arquivo "${file.name}" tem ${Math.round(file.size / 1024 / 1024)}MB e excedeu o limite de 5MB. Não será incluído.`, 'error');
+                    processedCount++;
+                    if (processedCount === filesArray.length) {
+                        elementos.progress_indicator.classList.remove('show');
+                    }
+                    return;
+                }
+
+                compressImage(file, (base64Image) => {
+                    orcamento.fotos.push(base64Image);
+                    
+                    processedCount++;
+                    elementos.progress_indicator.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Processando ${processedCount} de ${filesArray.length} fotos...`;
+
+                    if (processedCount === filesArray.length) {
+                        elementos.progress_indicator.classList.remove('show');
+                        renderPhotosPreview();
+                        renderPreview();
+                        salvarRascunho(false);
+                        showNotification(`${orcamento.fotos.length} fotos adicionadas com sucesso!`, 'success');
+                    }
+                });
+            });
+            
+            if (filesArray.length === 0) {
+                elementos.progress_indicator.classList.remove('show');
+            }
+        }
+
+        // ----------------------------------------------------
+        // LÓGICA DE DADOS, SALVAMENTO E LIMPEZA
+        // ----------------------------------------------------
+
+        // Atualiza o objeto orcamento com base nos inputs
+        function updateOrcamento() {
+            orcamento.endereco = elementos.endereco.value;
+            orcamento.placa_carro = elementos.placa_carro.value.toUpperCase();
+            orcamento.modelo_carro = elementos.modelo_carro.value;
+            orcamento.cliente = elementos.cliente.value;
+            orcamento.cliente_endereco = elementos.cliente_endereco.value;
+            orcamento.cliente_telefone = elementos.cliente_telefone.value;
+            orcamento.cliente_email = elementos.cliente_email.value;
+            orcamento.validade = parseInt(elementos.validade.value) || 30;
+            orcamento.porcentagem_sinistro = elementos.porcentagem_sinistro.value;
+            orcamento.observacoes = elementos.observacoes.value;
+            
+            // Re-renderiza a prévia sempre que um campo muda
+            renderPreview();
+        }
+
+        // Salva o objeto orcamento no localStorage
+        function salvarRascunho(showSuccess = true) {
+            try {
+                // Atualiza o objeto antes de salvar
+                updateOrcamento(); 
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(orcamento));
+                if (showSuccess) {
+                    showNotification('Rascunho salvo com sucesso!', 'success');
+                }
+            } catch (e) {
+                showNotification('Erro ao salvar rascunho. Ocupou o limite de armazenamento local.', 'error');
+                console.error('Erro ao salvar no localStorage:', e);
+            }
+        }
+
+        // Carrega o objeto orcamento do localStorage
+        function carregarRascunho() {
+            const savedData = localStorage.getItem(STORAGE_KEY);
+            if (savedData) {
+                try {
+                    const loadedOrcamento = JSON.parse(savedData);
+                    
+                    // Aplica dados salvos ao objeto principal
+                    Object.assign(orcamento, loadedOrcamento);
+                    
+                    // Atualiza os campos do formulário
+                    elementos.endereco.value = orcamento.endereco;
+                    elementos.placa_carro.value = orcamento.placa_carro;
+                    elementos.modelo_carro.value = orcamento.modelo_carro;
+                    elementos.cliente.value = orcamento.cliente;
+                    elementos.cliente_endereco.value = orcamento.cliente_endereco;
+                    elementos.cliente_telefone.value = orcamento.cliente_telefone;
+                    elementos.cliente_email.value = orcamento.cliente_email;
+                    elementos.validade.value = orcamento.validade;
+                    elementos.porcentagem_sinistro.value = orcamento.porcentagem_sinistro;
+                    elementos.observacoes.value = orcamento.observacoes;
+                    
+                    // Renderiza itens e fotos
+                    renderItemsTable();
+                    renderPhotosPreview();
+                    renderPreview(); // Garante que a prévia também seja atualizada
+                    showNotification('Rascunho carregado.', 'info');
+                } catch (e) {
+                    console.error('Erro ao carregar rascunho:', e);
+                    // Se falhar ao parsear, limpa o rascunho corrompido
+                    localStorage.removeItem(STORAGE_KEY); 
+                    showNotification('Rascunho corrompido e limpo.', 'error');
+                }
+            }
+        }
+
+        // Limpa todos os dados
+        function limparTudo(apenasFormulario = false) {
+            const emptyOrcamento = {
+                empresa: 'ITA Frotas',
+                endereco: '',
+                placa_carro: '', 
+                modelo_carro: '',
+                cliente: '',
+                cliente_endereco: '',
+                cliente_telefone: '',
+                cliente_email: '',
+                validade: 30,
+                porcentagem_sinistro: '0', 
+                itens: [],
+                observacoes: '',
+                fotos: []
+            };
+
+            Object.assign(orcamento, emptyOrcamento);
+
+            // Limpa campos
+            elementos.endereco.value = '';
+            elementos.placa_carro.value = '';
+            elementos.modelo_carro.value = '';
+            elementos.cliente.value = '';
+            elementos.cliente_endereco.value = '';
+            elementos.cliente_telefone.value = '';
+            elementos.cliente_email.value = '';
+            elementos.validade.value = '30';
+            elementos.porcentagem_sinistro.value = '0';
+            elementos.observacoes.value = '';
+            
+            // Limpa itens e fotos
+            renderItemsTable();
+            renderPhotosPreview();
+            
+            // Se não for "apenas formulário", limpa o rascunho salvo
+            if (!apenasFormulario) {
+                localStorage.removeItem(STORAGE_KEY);
+                showNotification('Todos os dados foram limpos e o rascunho excluído.', 'info');
+            } else {
+                 showNotification('Formulário limpo. Rascunho salvo mantido.', 'info');
+            }
+        }
+
+        // Preenche com dados de exemplo
+        function preencherExemplo() {
+            limparTudo(true); // Limpa o formulário mas não o rascunho salvo
+
+            elementos.endereco.value = 'Av. República do Líbano, 1551 - St. Oeste, Goiânia - GO, 74115-030';
+            elementos.placa_carro.value = 'EXM-0A23';
+            elementos.modelo_carro.value = 'VW Gol G7 Preto';
+            elementos.cliente.value = 'João da Silva Santos';
+            elementos.cliente_endereco.value = 'Avenida dos Testes, 456 - Bairro, Cidade - UF';
+            elementos.cliente_telefone.value = '(62) 99999-8888';
+            elementos.cliente_email.value = 'joao.silva@exemplo.com.br';
+            elementos.validade.value = '15';
+            elementos.porcentagem_sinistro.value = '10';
+            elementos.observacoes.value = 'Este é um orçamento de exemplo. O valor final pode mudar conforme a avaliação técnica final. O cliente deve estar ciente do acréscimo de sinistro de 10% aplicado.';
+            
+            orcamento.itens = [
+                { descricao: 'Troca de Para-choque Dianteiro (Peça Original)', quantidade: 1, valor_unitario: 850.50 },
+                { descricao: 'Reparo e Pintura do Capô (Mão de Obra)', quantidade: 1, valor_unitario: 600.00 },
+                { descricao: 'Alinhamento e Balanceamento', quantidade: 1, valor_unitario: 120.00 },
+                { descricao: 'Kit de Pastilhas de Freio', quantidade: 2, valor_unitario: 95.00 }
+            ];
+            
+            updateOrcamento();
+            renderItemsTable();
+            salvarRascunho(false);
+            showNotification('Dados de exemplo preenchidos. Lembre-se de salvar o rascunho.', 'info');
+        }
+
+        // ----------------------------------------------------
+        // LÓGICA DE PDF (jsPDF)
+        // ----------------------------------------------------
+
+        async function gerarPDF() {
+            if (!orcamento.cliente || !orcamento.placa_carro || orcamento.itens.length === 0) {
+                showNotification('Por favor, preencha o Cliente, Placa do Carro e adicione ao menos um Item.', 'error');
+                return;
+            }
+
+            elementos.progress_indicator.classList.add('show');
+            elementos.progress_indicator.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Gerando PDF (Calculando e otimizando)...`;
+            
+            // Usando jspdf e jspdf-autotable
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF('p', 'mm', 'a4'); // Retrato, Milímetros, A4
+            let finalY = 10; // Posição inicial Y
+
+            const margin = 15;
+            const pageWidth = doc.internal.pageSize.getWidth();
+            const textWidth = pageWidth - (2 * margin);
+
+            // Título
+            doc.setFontSize(18);
+            doc.setTextColor(44, 62, 80); // Cor primary-color
+            doc.text(`ORÇAMENTO DE SERVIÇOS`, pageWidth / 2, finalY, { align: 'center' });
+            finalY += 8;
+
+            // Linha separadora
+            doc.setDrawColor(52, 152, 219); // Cor secondary-color
+            doc.setLineWidth(0.5);
+            doc.line(margin, finalY, pageWidth - margin, finalY);
+            finalY += 5;
+
+            // Dados da Empresa
+            doc.setFontSize(10);
+            doc.setFont(undefined, 'bold');
+            doc.text('EMPRESA:', margin, finalY);
+            doc.setFont(undefined, 'normal');
+            doc.text(orcamento.empresa, margin + 25, finalY);
+            finalY += 5;
+
+            doc.setFont(undefined, 'bold');
+            doc.text('ENDEREÇO:', margin, finalY);
+            doc.setFont(undefined, 'normal');
+            doc.text(orcamento.endereco, margin + 25, finalY);
+            finalY += 7;
+
+            // Dados do Cliente/Veículo
+            doc.setFontSize(12);
+            doc.setTextColor(44, 62, 80);
+            doc.setFont(undefined, 'bold');
+            doc.text('DADOS DO CLIENTE/VEÍCULO', margin, finalY);
+            finalY += 5;
+            
+            doc.setFontSize(10);
+            doc.setFont(undefined, 'bold');
+            doc.text('CLIENTE:', margin, finalY);
+            doc.setFont(undefined, 'normal');
+            doc.text(orcamento.cliente, margin + 20, finalY);
+            finalY += 5;
+            
+            doc.setFont(undefined, 'bold');
+            doc.text('ENDEREÇO:', margin, finalY);
+            doc.setFont(undefined, 'normal');
+            doc.text(orcamento.cliente_endereco, margin + 20, finalY);
+            finalY += 5;
+
+            // Linha com múltiplos dados
+            doc.setFont(undefined, 'bold');
+            doc.text('TELEFONE:', margin, finalY);
+            doc.setFont(undefined, 'normal');
+            doc.text(orcamento.cliente_telefone, margin + 20, finalY);
+            
+            doc.setFont(undefined, 'bold');
+            doc.text('PLACA:', pageWidth / 2, finalY);
+            doc.setFont(undefined, 'normal');
+            doc.text(orcamento.placa_carro, pageWidth / 2 + 15, finalY);
+            finalY += 5;
+
+            doc.setFont(undefined, 'bold');
+            doc.text('MODELO:', margin, finalY);
+            doc.setFont(undefined, 'normal');
+            doc.text(orcamento.modelo_carro, margin + 20, finalY);
+            finalY += 8;
+
+            // Tabela de Itens
+            elementos.progress_indicator.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Gerando tabela de itens...`;
+            
+            const head = [['#', 'DESCRIÇÃO', 'QTD', 'V. UNIT.', 'TOTAL']];
+            const subtotal = orcamento.itens.reduce((sum, item) => sum + (item.quantidade * item.valor_unitario), 0);
+            const percentualSinistro = parseFloat(orcamento.porcentagem_sinistro) / 100;
+            const acrescimoSinistro = subtotal * percentualSinistro;
+            const totalGeral = subtotal + acrescimoSinistro;
+
+            const body = orcamento.itens.map((item, index) => [
+                index + 1, 
+                item.descricao, 
+                item.quantidade, 
+                formatarMoeda(item.valor_unitario), 
+                formatarMoeda(item.quantidade * item.valor_unitario)
+            ]);
+
+            // Linhas de totais
+            body.push([
+                { content: 'SUBTOTAL', colSpan: 4, styles: { halign: 'right', fontStyle: 'bold', fillColor: [236, 240, 241] } }, 
+                { content: formatarMoeda(subtotal), styles: { halign: 'right', fontStyle: 'bold', fillColor: [236, 240, 241] } }
+            ]);
+            
+            if (percentualSinistro > 0) {
+                 body.push([
+                    { content: `ACRÉSCIMO SINISTRO (${orcamento.porcentagem_sinistro}%)`, colSpan: 4, styles: { halign: 'right', fontStyle: 'bold', fillColor: [243, 156, 18], textColor: [44, 62, 80] } }, 
+                    { content: formatarMoeda(acrescimoSinistro), styles: { halign: 'right', fontStyle: 'bold', fillColor: [243, 156, 18], textColor: [44, 62, 80] } }
+                ]);
+            }
+            
+            body.push([
+                { content: 'TOTAL GERAL', colSpan: 4, styles: { halign: 'right', fontStyle: 'bold', fillColor: [52, 152, 219], textColor: [255, 255, 255] } }, 
+                { content: formatarMoeda(totalGeral), styles: { halign: 'right', fontStyle: 'bold', fillColor: [52, 152, 219], textColor: [255, 255, 255] } }
+            ]);
+
+            doc.autoTable({
+                startY: finalY,
+                head: head,
+                body: body,
+                theme: 'striped',
+                headStyles: { 
+                    fillColor: [44, 62, 80], // Cor primary-color
+                    textColor: [255, 255, 255],
+                    fontSize: 10
+                },
+                styles: {
+                    fontSize: 9,
+                    cellPadding: 2
+                },
+                columnStyles: {
+                    0: { halign: 'center', cellWidth: 10 }, // #
+                    2: { halign: 'center', cellWidth: 15 }, // QTD
+                    3: { halign: 'right', cellWidth: 25 }, // V. UNIT.
+                    4: { halign: 'right', cellWidth: 25 } // TOTAL
+                },
+                didDrawPage: function (data) {
+                    // Footer (Validade e Data)
+                    let pageCount = doc.internal.getNumberOfPages();
+                    doc.setFontSize(8);
+                    doc.setTextColor(127, 140, 141); // Cinza
+                    doc.text(`Data de Emissão: ${new Date().toLocaleDateString('pt-BR')}`, margin, doc.internal.pageSize.height - 10);
+                    doc.text(`Validade: ${orcamento.validade} dias`, pageWidth - margin, doc.internal.pageSize.height - 10, { align: 'right' });
+                    doc.text(`Página ${data.pageNumber} de ${pageCount}`, pageWidth / 2, doc.internal.pageSize.height - 10, { align: 'center' });
+                },
+                didParseCell: function (data) {
+                    if (data.section === 'head') {
+                        data.cell.styles.fillColor = [44, 62, 80]; // Primary color para o cabeçalho
+                    }
+                }
+            });
+
+            finalY = doc.autoTable.previous.finalY + 10;
+
+            // Observações
+            if (orcamento.observacoes) {
+                doc.setFontSize(12);
+                doc.setTextColor(44, 62, 80);
+                doc.setFont(undefined, 'bold');
+                doc.text('OBSERVAÇÕES ADICIONAIS:', margin, finalY);
+                finalY += 5;
+                
+                doc.setFontSize(10);
+                doc.setFont(undefined, 'normal');
+                const splitText = doc.splitTextToSize(orcamento.observacoes, textWidth);
+                doc.text(splitText, margin, finalY);
+                finalY += splitText.length * 5 + 5;
+            }
+
+            // Fotos da Avaria
+            if (orcamento.fotos.length > 0) {
+                doc.setFontSize(12);
+                doc.setTextColor(44, 62, 80);
+                doc.setFont(undefined, 'bold');
+                doc.text(`FOTOS DA AVARIA (${orcamento.fotos.length})`, margin, finalY);
+                finalY += 5;
+                
+                elementos.progress_indicator.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Adicionando ${orcamento.fotos.length} fotos no PDF...`;
+
+                const photoMargin = 5;
+                const availableWidth = pageWidth - (2 * margin);
+                const imageCountPerRow = 2; // Duas imagens por linha
+                const imageWidth = (availableWidth - (photoMargin * (imageCountPerRow - 1))) / imageCountPerRow;
+                const imageRatio = 0.75; // 4:3 ratio (pode ser ajustado)
+                const imageHeight = imageWidth * imageRatio;
+                
+                let currentX = margin;
+                let currentY = finalY;
+
+                for (let i = 0; i < orcamento.fotos.length; i++) {
+                    // Verifica se a imagem cabe na página atual
+                    if (currentY + imageHeight + 15 > doc.internal.pageSize.getHeight()) {
+                        doc.addPage();
+                        currentY = margin; // Começa no topo da nova página
+                    }
+
+                    // Adiciona a imagem
+                    doc.addImage(orcamento.fotos[i], 'JPEG', currentX, currentY, imageWidth, imageHeight);
+                    
+                    // Vai para a próxima coluna
+                    currentX += imageWidth + photoMargin;
+
+                    // Se for a última coluna (ou a última imagem), vai para a próxima linha
+                    if ((i + 1) % imageCountPerRow === 0 || i === orcamento.fotos.length - 1) {
+                        currentX = margin;
+                        currentY += imageHeight + photoMargin;
+                    }
+                }
+                finalY = currentY + 5;
+            }
+
+            // Nome do arquivo
+            const filename = `Orcamento_${orcamento.placa_carro.replace('-', '_')}_${orcamento.cliente.split(' ')[0]}_${new Date().toLocaleDateString('pt-BR').replace(/\//g, '-')}.pdf`;
+            
+            doc.save(filename);
+            
+            elementos.progress_indicator.classList.remove('show');
+            showNotification('PDF gerado com sucesso!', 'success');
+        }
+
+        // ----------------------------------------------------
+        // INICIALIZAÇÃO
+        // ----------------------------------------------------
+
+        // Inicialização do vídeo de fundo do YouTube
+        function initYouTubeVideo() {
+            const iframe = document.createElement('iframe');
+            iframe.setAttribute('src', `https://www.youtube.com/embed/${YOUTUBE_VIDEO_ID}?controls=0&showinfo=0&rel=0&autoplay=1&loop=1&mute=1&playlist=${YOUTUBE_VIDEO_ID}`);
+            iframe.setAttribute('frameborder', '0');
+            iframe.setAttribute('allow', 'autoplay; encrypted-media');
+            iframe.setAttribute('allowfullscreen', '');
+            document.getElementById('youtube_header_video_container').appendChild(iframe);
+        }
+
+        // Adiciona Listeners
+        function setupEventListeners() {
+            // Inputs do formulário (debounce para não salvar/atualizar a prévia em cada tecla)
+            document.querySelectorAll('.form-section input, .form-section textarea, .form-section select').forEach(input => {
+                input.addEventListener('input', debounce(updateOrcamento, 300));
+            });
+
+            // Botão Adicionar Item
+            elementos.adicionar_item.addEventListener('click', adicionarItem);
+            
+            // Atalho Enter no campo de valor
+            elementos.item_valor.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    adicionarItem();
+                }
+            });
+
+            // Botões de Ação
+            elementos.salvar_rascunho.addEventListener('click', () => salvarRascunho(true));
+            elementos.limpar_tudo.addEventListener('click', () => {
+                 if (confirm("Tem certeza que deseja limpar TODO o formulário e o Rascunho SALVO?")) {
+                    limparTudo(false);
+                }
+            });
+            elementos.limpar_formulario.addEventListener('click', () => {
+                 if (confirm("Tem certeza que deseja limpar o formulário atual? (O rascunho salvo permanecerá)")) {
+                    limparTudo(true);
+                }
+            });
+            elementos.preencher_exemplo.addEventListener('click', preencherExemplo);
+            elementos.gerar_pdf.addEventListener('click', gerarPDF);
+
+            // ------------------------------------
+            // UPLOAD E DRAG & DROP
+            // ------------------------------------
+            
+            // Abre o seletor de arquivo ao clicar
+            elementos.upload_area.addEventListener('click', () => elementos.photo_input.click());
+            
+            // Seleção de arquivo
+            elementos.photo_input.addEventListener('change', (e) => {
+                handleFiles(e.target.files);
+                e.target.value = null; // Limpa o input para permitir o upload da mesma imagem novamente
+            });
+
+            // Eventos de Drag & Drop
+            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                elementos.upload_area.addEventListener(eventName, preventDefaults, false);
+            });
+
+            function preventDefaults (e) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+
+            // Efeito visual de "dragover"
+            ['dragenter', 'dragover'].forEach(eventName => {
+                elementos.upload_area.addEventListener(eventName, () => elementos.upload_area.classList.add('dragover'), false);
+            });
+
+            ['dragleave', 'drop'].forEach(eventName => {
+                elementos.upload_area.addEventListener(eventName, () => elementos.upload_area.classList.remove('dragover'), false);
+            });
+
+            // Tratamento do Drop
+            elementos.upload_area.addEventListener('drop', (e) => {
+                let dt = e.dataTransfer;
+                let files = dt.files;
+                handleFiles(files);
+            }, false);
+        }
+
+        // Função de Debounce para limitar a frequência de chamadas
+        function debounce(func, delay) {
+            let timeout;
+            return function(...args) {
+                const context = this;
+                clearTimeout(timeout);
+                timeout = setTimeout(() => func.apply(context, args), delay);
+            };
+        }
+
+        // Inicia a aplicação
+        window.addEventListener('load', () => {
+            initYouTubeVideo();
+            carregarRascunho();
+            setupEventListeners();
+        });
+
+    })();
+</script>
+</body>
+</html>
