@@ -1,0 +1,89 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider        = "prisma-client-js"
+  engineType      = "client"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+model Insumo {
+  id          String   @id @default(cuid())
+  codigo      String   @unique
+  descricao   String
+  unidade     String
+  precoMedio  Float
+  fonte       String   @default("SINAPI")
+  estado      String
+  dataRef     DateTime
+  items       ItemOrcamento[]
+}
+
+model Composicao {
+  id          String   @id @default(cuid())
+  codigo      String   @unique
+  descricao   String
+  unidade     String
+  precoTotal  Float
+  fonte       String   @default("SINAPI")
+  estado      String
+  dataRef     DateTime
+  items       ItemOrcamento[]
+}
+
+model Cliente {
+  id          String   @id @default(cuid())
+  nome        String
+  documento   String?  // CPF/CNPJ
+  email       String?
+  telefone    String?
+  endereco    String?
+  orcamentos  Orcamento[]
+}
+
+model Orcamento {
+  id              String   @id @default(cuid())
+  numero          Int      @unique
+  titulo          String
+  descricao       String?
+  dataCriacao     DateTime @default(now())
+  validadeDias    Int      @default(15)
+  status          String   @default("RASCUNHO") // RASCUNHO, ENVIADO, APROVADO, NEGADO
+  bdi             Float    @default(25.0)
+  condicoesPgto   String   @default("50% de entrada na aprovação e 50% na entrega final.")
+  
+  cliente         Cliente  @relation(fields: [clienteId], references: [id])
+  clienteId       String
+  
+  items           ItemOrcamento[]
+}
+
+model ItemOrcamento {
+  id              String   @id @default(cuid())
+  descricao       String
+  quantidade      Float
+  precoUnitario   Float
+  total           Float
+  ordem           Int
+  
+  orcamento       Orcamento @relation(fields: [orcamentoId], references: [id])
+  orcamentoId     String
+  
+  insumo          Insumo?   @relation(fields: [insumoId], references: [id])
+  insumoId        String?
+  
+  composicao      Composicao? @relation(fields: [composicaoId], references: [id])
+  composicaoId    String?
+}
+
+model Configuracao {
+  id              String @id @default("GLOBAL")
+  empresaNome     String @default("Automações Comerciais Integradas! 2026")
+  empresaCnpj     String @default("61.189.176/0001-28")
+  empresaLogotipo String?
+  contatoEmail    String @default("contato@automacoescomerciais.com.br")
+  contatoWhatsapp String @default("https://wa.me/558894227586")
+}

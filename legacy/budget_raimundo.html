@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Orçamento de Serviços - Raimundo Nonato</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #2563eb;
+            --secondary: #64748b;
+            --accent: #f59e0b;
+            --bg: #f8fafc;
+            --card-bg: rgba(255, 255, 255, 0.8);
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --glass: rgba(255, 255, 255, 0.7);
+            --glass-border: rgba(255, 255, 255, 0.4);
+            --shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background: var(--bg);
+            background-image: 
+                radial-gradient(at 0% 0%, rgba(37, 99, 235, 0.05) 0px, transparent 50%),
+                radial-gradient(at 100% 100%, rgba(245, 158, 11, 0.05) 0px, transparent 50%);
+            color: var(--text-main);
+            padding: 40px;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 800px;
+            background: var(--card-bg);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            padding: 60px;
+            box-shadow: var(--shadow);
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Top Accent Bar */
+        .container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 8px;
+            background: linear-gradient(90deg, var(--primary), var(--accent));
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 50px;
+        }
+
+        .logo-area h1 {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--primary);
+            letter-spacing: -0.5px;
+            margin-bottom: 4px;
+        }
+
+        .logo-area p {
+            font-size: 14px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .budget-meta {
+            text-align: right;
+        }
+
+        .budget-meta h2 {
+            font-size: 32px;
+            font-weight: 800;
+            margin-bottom: 8px;
+            color: var(--text-main);
+        }
+
+        .budget-meta p {
+            font-size: 14px;
+            color: var(--text-muted);
+        }
+
+        .section {
+            margin-bottom: 40px;
+        }
+
+        .section-title {
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: var(--primary);
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .section-title::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: linear-gradient(90deg, rgba(37, 99, 235, 0.2), transparent);
+        }
+
+        .client-card {
+            background: rgba(255, 255, 255, 0.4);
+            border: 1px solid var(--glass-border);
+            padding: 20px;
+            border-radius: 16px;
+        }
+
+        .client-info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .info-item label {
+            display: block;
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--text-muted);
+            margin-bottom: 4px;
+            text-transform: uppercase;
+        }
+
+        .info-item span {
+            font-size: 15px;
+            font-weight: 500;
+            color: var(--text-main);
+        }
+
+        .services-list {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .service-item {
+            padding-bottom: 20px;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .service-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+
+        .service-header h3 {
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .service-price {
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .service-desc {
+            font-size: 14px;
+            color: var(--text-muted);
+            line-height: 1.6;
+        }
+
+        .timeline-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        .timeline-item {
+            padding: 16px;
+            background: rgba(37, 99, 235, 0.03);
+            border-radius: 12px;
+            border-left: 4px solid var(--primary);
+        }
+
+        .timeline-item h4 {
+            font-size: 13px;
+            margin-bottom: 4px;
+        }
+
+        .timeline-item p {
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+
+        .total-area {
+            margin-top: 40px;
+            padding-top: 30px;
+            border-top: 2px solid var(--text-main);
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        .total-box {
+            text-align: right;
+        }
+
+        .total-label {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-muted);
+            margin-bottom: 4px;
+        }
+
+        .total-value {
+            font-size: 36px;
+            font-weight: 800;
+            color: var(--text-main);
+        }
+
+        footer {
+            margin-top: 60px;
+            text-align: center;
+            font-size: 12px;
+            color: var(--text-muted);
+            border-top: 1px solid rgba(0, 0, 0, 0.05);
+            padding-top: 20px;
+        }
+
+        @media print {
+            body { background: white; padding: 0; }
+            .container { box-shadow: none; border: none; max-width: 100%; border-radius: 0; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo-area">
+                <h1>SISTEMA DE MANUTENÇÕES</h1>
+                <p>ORÇAMENTOS PROFISSIONAIS</p>
+            </div>
+            <div class="budget-meta">
+                <h2>ORÇAMENTO</h2>
+                <p>Nº #2026/03/27-01</p>
+                <p>Data: 27 de Março de 2026</p>
+            </div>
+        </header>
+
+        <div class="section">
+            <div class="section-title">Dados do Cliente</div>
+            <div class="client-card">
+                <div class="client-info-grid">
+                    <div class="info-item">
+                        <label>Nome Completo</label>
+                        <span>RAIMUNDO NONATO QUEIROS ALVES</span>
+                    </div>
+                    <div class="info-item">
+                        <label>CPF</label>
+                        <span>862.224.499-72</span>
+                    </div>
+                    <div class="info-item">
+                        <label>Telefone</label>
+                        <span>(88) 9677-9445</span>
+                    </div>
+                    <div class="info-item">
+                        <label>E-mail</label>
+                        <span>rnqa73vidanova@gmail.com</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <div class="section-title">Descrição dos Serviços</div>
+            <div class="services-list">
+                <div class="service-item">
+                    <div class="service-header">
+                        <h3>Alvenaria (Gelo Baiano)</h3>
+                        <span class="service-price">R$ 3.750,00</span>
+                    </div>
+                    <p class="service-desc">Substituição de 15 blocos (tipo gelo baiano) danificados. Inclui a remoção do material antigo, assentamento dos novos blocos e acabamento com massa para equalização da superfície.</p>
+                </div>
+                <div class="service-item">
+                    <div class="service-header">
+                        <h3>Pintura de Meio-Fio (Epóxi)</h3>
+                        <span class="service-price">Incluído</span>
+                    </div>
+                    <p class="service-desc">Limpeza, preparação e aplicação em toda a extensão do meio-fio da empresa. A tinta epóxi garante alta resistência ao tráfego e intempéries.</p>
+                </div>
+                <div class="service-item">
+                    <div class="service-header">
+                        <h3>Pintura Geral (Látex)</h3>
+                        <span class="service-price">R$ 3.750,00</span>
+                    </div>
+                    <p class="service-desc">Aplicação de tinta Látex em áreas indicadas (paredes ou muretas), incluindo lixamento leve e limpeza para garantir a aderência.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <div class="section-title">Cronograma Estimado</div>
+            <div class="timeline-grid">
+                <div class="timeline-item">
+                    <h4>Alvenaria</h4>
+                    <p>Substituição e Troca de Blocos: 1 dia</p>
+                </div>
+                <div class="timeline-item">
+                    <h4>Pintura e Acabamento</h4>
+                    <p>Execução e secagem: 1 a 2 dias</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="total-area">
+            <div class="total-box">
+                <p class="total-label">VALOR TOTAL DOS SERVIÇOS (MÃO DE OBRA)</p>
+                <p class="total-value">R$ 7.500,00</p>
+            </div>
+        </div>
+
+        <footer>
+            <p>Orçamento válido por 10 dias. Pagamento a combinar após aprovação.</p>
+            <p>Gerado automaticamente pelo Sistema de Orçamentos Cleudocode Framework.</p>
+        </footer>
+    </div>
+</body>
+</html>

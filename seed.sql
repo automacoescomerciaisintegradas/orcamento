@@ -1,0 +1,5 @@
+INSERT OR REPLACE INTO Insumo (id, codigo, descricao, unidade, precoMedio, fonte, estado, dataRef) VALUES ('clr1', '3750', 'TINTA EPOXI PARA PISOS E PAREDES', 'GL', 189.90, 'SINAPI', 'CE', '1738368000000');
+INSERT OR REPLACE INTO Insumo (id, codigo, descricao, unidade, precoMedio, fonte, estado, dataRef) VALUES ('clr2', '88489', 'PINTURA DE MEIO-FIO COM TINTA EPÓXI, 2 DEMÃOS', 'M', 45.67, 'SINAPI', 'CE', '1738368000000');
+INSERT OR REPLACE INTO Insumo (id, codigo, descricao, unidade, precoMedio, fonte, estado, dataRef) VALUES ('clr3', '12345', 'BLOCO DE CONCRETO 19X19X39CM (GELO BAIANO)', 'UN', 4.50, 'SINAPI', 'CE', '1738368000000');
+INSERT OR REPLACE INTO Insumo (id, codigo, descricao, unidade, precoMedio, fonte, estado, dataRef) VALUES ('clr4', '40552', 'PEDREIRO COM ENCARGOS COMPLEMENTARES', 'H', 25.50, 'SINAPI', 'CE', '1738368000000');
+INSERT OR REPLACE INTO Insumo (id, codigo, descricao, unidade, precoMedio, fonte, estado, dataRef) VALUES ('clr5', '40566', 'PINTOR COM ENCARGOS COMPLEMENTARES', 'H', 22.80, 'SINAPI', 'CE', '1738368000000');
